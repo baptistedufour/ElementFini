@@ -12,6 +12,7 @@ private:
   double _a, _b, _c;
   double _d, _e, _f;
   double _ul, _ur;
+  double _gamma0;
 
   std::string _sigma_choice;
   std::string _source_fct_choice;
@@ -20,7 +21,6 @@ private:
   std::string _solver_choice;
   std::string _norm_L2_choice;
   std::string _results;
-  std::string _gamma0_choice;
 
   bool _if_Nmesh_choice;
   bool _if_sigma_choice;
@@ -45,7 +45,6 @@ public: // Méthodes et opérateurs de la classe
   std::string Get_solver_choice() const {return _solver_choice;};
   std::string Get_norm_L2_choice() const {return _norm_L2_choice;};
   std::string Get_results() const {return _results;};
-  std::string Get_gamma0_choice() const {return _gamma0_choice;};
 
   double Get_Nmesh() const {return _Nmesh_choice;};
   double Get_Pk_choice() const { return _Pk_choice;}
@@ -57,6 +56,7 @@ public: // Méthodes et opérateurs de la classe
   double Get_param_d() const { return _d;}
   double Get_param_e() const { return _e;}
   double Get_param_f() const { return _f;}
+  double Get_param_gamma0() const { return _gamma0;}
 };
 
 #define _DATA_FILE_H

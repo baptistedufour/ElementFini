@@ -37,6 +37,12 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
         data_file >> _Nmesh_choice; _if_Nmesh_choice = true;
       }
 
+      getline(data_file, file_line);
+      if (file_line.find("gamma0") != std::string::npos)
+      {
+        data_file >> _gamma0; _if_gamma0_choice = true;
+      }
+
       if (file_line.find("sigma") != std::string::npos)
       {
         data_file >> _sigma_choice; _if_sigma_choice = true;
@@ -167,6 +173,12 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
       cout << "-------------------------------------------------" << endl;
       cout << "Beware - The default value (1) is used for the degree of Pk elements." << endl;
       _Pk_choice = 1;
+    }
+    if (!_if_gamma0_choice)
+    {
+      cout << "-------------------------------------------------" << endl;
+      cout << "Beware - The default value (1000) is used for gamma0." << endl;
+      _gamma0 = 1000;
     }
     if (!_if_norm_L2_choice)
     {

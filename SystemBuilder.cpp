@@ -12,7 +12,7 @@ using namespace std;
 SystemBuilder::SystemBuilder(DataFile* data_file) :
 _ur(data_file->Get_right_BC()), _ul(data_file->Get_left_BC()),
 _a(data_file->Get_param_a()), _d(data_file->Get_param_d()),
-_Pk_choice(data_file->Get_Pk_choice())
+_Pk_choice(data_file->Get_Pk_choice()), _gamma0(data_file->Get_param_gamma0())
 {
   if(_Pk_choice==1)
   {
@@ -35,7 +35,7 @@ void SystemBuilder::Build_matA()
 
   double alpha = 8; //sqrt(3)/2.+1;
   double beta = 4;//1-sqrt(3)/2.;
-  double mu =1.;//= TODO 
+  double mu =1.;//= TODO
 
   cout << "Création de A : " << endl;
   cout << "taille : "<< taille << endl;

@@ -20,6 +20,7 @@ class SystemBuilder
     double _a, _b, _c;
     double _d, _e, _f;
     double _ur, _ul;
+    double _gamma0;
 
     Eigen::SparseLU<Eigen::SparseMatrix<double, Eigen::ColMajor>, Eigen::COLAMDOrdering<int> > _solverMethod;
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > _solverMethod2;
