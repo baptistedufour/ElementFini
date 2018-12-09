@@ -30,6 +30,7 @@ int main(int argc, char** argv)
   auto start = chrono::high_resolution_clock::now();
   SystemBuilder* builder = new SystemBuilder(data_file);
   builder->Build_matA();
+  builder->Build_sourceTerm();
   auto finish = chrono::high_resolution_clock::now();
   double t = chrono::duration_cast<chrono::milliseconds>(finish-start).count();
   // ---------------------------------------------------------------------------
@@ -47,6 +48,7 @@ int main(int argc, char** argv)
   cout << "Time to compute : "<< t*0.001 << " seconds" << endl;
 
   //------------------- Si on connait la solution exacte -----------------------
+  /*
   if ((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_sigma_choice() == "constant"))
   {
     VectorXd exact_sol = solver->ExactSolution();
@@ -59,7 +61,7 @@ int main(int argc, char** argv)
     error_file.open(error_file_name, ios::out);
     error_file << error << endl;
     error_file.close();
-  }
+  }*/
   // ---------------------------------------------------------------------------
 
   delete solver;

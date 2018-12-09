@@ -10,8 +10,8 @@
 class SystemSolver {
   private:
     SystemBuilder* _builder;
-    int _source_fct_choice;
-    int _sigma_choice;
+    std::string _source_fct_choice;
+    std::string _sigma_choice;
     enum {constant,line,curve};
 
     Eigen::SparseVector<double>  _sol;

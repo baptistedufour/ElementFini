@@ -10,17 +10,45 @@ using namespace Eigen;
 using namespace std;
 
 SystemBuilder::SystemBuilder(DataFile* data_file) :
-_ur(data_file->Get_right_BC()), _ul(data_file->Get_left_BC()),
-_a(data_file->Get_param_a()), _d(data_file->Get_param_d()),
-_Pk_choice(data_file->Get_Pk_choice()), _gamma0(data_file->Get_param_gamma0())
+_nb_pts(data_file->Get_Nmesh()), _src_choice(data_file->Get_source_fct_choice()),
+BC_right(data_file->Get_right_BC_choice()),_ur(data_file->Get_right_BC()),
+BC_left(data_file->Get_left_BC_choice()),_ul(data_file->Get_left_BC()),
+_gamma0(data_file->Get_param_gamma0()), _d(data_file->Get_param_d()),
+_Pk_choice(data_file->Get_Pk_choice()), _a(data_file->Get_param_a()),
+_sigma_choice(data_file->Get_sigma_choice())
 {
-  if(_Pk_choice==1)
+  //Parametre
+  _dx = 1./(_nb_pts+1);
+  _Asize = 2*_nb_pts;
+
+  //Conditions aux bords (neumann, dirichlet u_g)
+  if(BC_right == "dirichlet")
   {
-    _nb_pts = data_file->Get_Nmesh();
+    _aR = 2; _bR = -1;
   }
   else
   {
-    _nb_pts = 3*data_file->Get_Nmesh()+1;
+    _aR = 1; _bR = -_dx/2.;
+  }
+
+  if(BC_left == "dirichlet")
+  {
+    _aL = 2; _bL = -1;
+  }
+  else
+  {
+    _aL = 1; _bL = -_dx/2.;
+  }
+
+  //Terme source
+  if( _src_choice == "line" )
+  {
+    _b = data_file->Get_param_b();
+  }
+  else if( _src_choice == "curve" )
+  {
+    _b = data_file->Get_param_b();
+    _c = data_file->Get_param_b();
   }
 
   //system("mkdir -p ./Results");
@@ -29,96 +57,162 @@ _Pk_choice(data_file->Get_Pk_choice()), _gamma0(data_file->Get_param_gamma0())
 
 void SystemBuilder::Build_matA()
 {
-  int taille = 2*_nb_pts;
-  _matA.resize(taille, taille);
+  cout << "Création de A (Taille " << _Asize << ") : " << endl;
+  _matA.resize(_Asize,_Asize);
   _matA.setZero();
 
-  double alpha = 8; //sqrt(3)/2.+1;
-  double beta = 4;//1-sqrt(3)/2.;
-  double mu =1.;//= TODO
+  double alpha = sqrt(3)/2.+1;
+  double beta = 1-sqrt(3)/2.;
+  double mu =_gamma0/_dx;
 
-  cout << "Création de A : " << endl;
-  cout << "taille : "<< taille << endl;
-
-  for (int i = 0; i < taille-1; i++)
+  for (int i = 0; i < _nb_pts+1; i++)
   {
-    // cout.flush();
-    // cout << "Progression : " << (double)i/((double)(_nb_pts))*100 << "% \r";
-    for (int j = 0 ; j < taille-1 ; j++)
-    {
+     cout.flush();
+     cout << "Progression : " << (double)i/((double)(_nb_pts))*100 << "% \r";
 
-      // if ((i<3)&&(j<3)&&(i==j))
-      // {
-      //   _matA.coeffRef(i,j)=1;
-      // }
-      if (((j==i+2)&&(i>0))||((i==j+2)&&(j>0)))
-      {
-        _matA.coeffRef(i,j)=1./2;
-      }
-      if ((i==j)&&(i>0)&&(i<taille-1))
-      {
-        _matA.coeffRef(i,j)=2.;
-      }
-      if (((j==i+3)&&(j%2==0))||(i==j+3)&&(j%2==1)&&(i<taille-1))
-      {
-        _matA.coeffRef(i,j)=-beta;
-      }
-      if (((j==i+1)&&(j%2==1)&&(i>1)&&(i<taille))||(i==j+1)&&(j%2==0)&&(j>1)&&(j<taille))
-      {
-        _matA.coeffRef(i,j)=-alpha;
-      }
-      if (((j==i+1)&&(j%2==0))||((i==j+1)&&(j%2==1)))
-      {
-        _matA.coeffRef(i,j)=-1;
-      }
-    }
+     if( (i > 1) && (i < _nb_pts-1) )
+     {
+       _matA.coeffRef(2*i-1,2*i-3) = 0.5;
+       _matA.coeffRef(2*i-1,2*i-2) = -alpha;
+       _matA.coeffRef(2*i-1,2*i-1) = 2;
+       _matA.coeffRef(2*i-1,2*i)   = -1;
+       _matA.coeffRef(2*i-1,2*i+1) = 0.5;
+       _matA.coeffRef(2*i-1,2*i+2) = -beta;
 
+       _matA.coeffRef(2*i,2*i-3) = -beta;
+       _matA.coeffRef(2*i,2*i-2) = 0.5;
+       _matA.coeffRef(2*i,2*i-1) = -1;
+       _matA.coeffRef(2*i,2*i)   = 2;
+       _matA.coeffRef(2*i,2*i+1) = -alpha;
+       _matA.coeffRef(2*i,2*i+2) = 0.5;
+     }
+
+     else if (i==1)
+     {
+       _matA.coeffRef(2*i-1,2*i-1) = 2;
+       _matA.coeffRef(2*i-1,2*i)   = -1;
+       _matA.coeffRef(2*i-1,2*i+1) = 0.5;
+       _matA.coeffRef(2*i-1,2*i+2) = -beta;
+
+       _matA.coeffRef(2*i,2*i-1) = -1;
+       _matA.coeffRef(2*i,2*i)   = 2;
+       _matA.coeffRef(2*i,2*i+1) = -alpha;
+       _matA.coeffRef(2*i,2*i+2) = 0.5;
+
+       if(BC_left == "dirichlet")
+       {
+         _matA.coeffRef(2*i-1,2*i-2) = -_aL*(1+sqrt(3))/2.;
+         _matA.coeffRef(2*i  ,2*i-2) = -_aL*(1-sqrt(3))/2.;
+       }
+       else
+       {
+         _matA.coeffRef(2*i-1,2*i-2) = 0;
+         _matA.coeffRef(2*i  ,2*i-2) = 0;
+       }
+     }
+
+     else if (i==_nb_pts-1)
+     {
+       _matA.coeffRef(2*i-1,2*i-3) = 0.5;
+       _matA.coeffRef(2*i-1,2*i-2) = -alpha;
+       _matA.coeffRef(2*i-1,2*i-1) = 2;
+       _matA.coeffRef(2*i-1,2*i)   = -1;
+
+       _matA.coeffRef(2*i,2*i-3) = -beta;
+       _matA.coeffRef(2*i,2*i-2) = 0.5;
+       _matA.coeffRef(2*i,2*i-1) = -1;
+       _matA.coeffRef(2*i,2*i)   = 2;
+
+       if(BC_right == "dirichlet")
+       {
+         _matA.coeffRef(2*i-1,2*i+1) = -_aR*(1-sqrt(3))/2.;
+         _matA.coeffRef(2*i  ,2*i+1) = -_aR*(1+sqrt(3))/2.;
+       }
+       else
+       {
+         _matA.coeffRef(2*i-1,2*i+1) = 0;
+         _matA.coeffRef(2*i  ,2*i+1) = 0;
+       }
+     }
+
+     else if (i==0)
+     {
+       _matA.coeffRef(2*i,2*i)   = 2*_aL;
+       _matA.coeffRef(2*i,2*i+1) = -(1+sqrt(3));
+       _matA.coeffRef(2*i,2*i+2) = -(1-sqrt(3));
+     }
+
+     else
+     {
+       _matA.coeffRef(2*i-1,2*i-3) = -(1-sqrt(3));
+       _matA.coeffRef(2*i-1,2*i-2) = -(1+sqrt(3));
+       _matA.coeffRef(2*i-1,2*i-1) = 2*_aR;
+     }
   }
 
-  Matrix<double,8,8 > Matrix;
+  //Affichage
+  Matrix<double, Dynamic, Dynamic> Matrix;
   Matrix = MatrixXd(_matA);
-  cout<<Matrix<<endl;
+  cout << Matrix << endl;
 
+  _matA = mu*_matA;
   SparseMatrix<double, ColMajor> A(_matA);
-  BoundaryCondition_matA(A);
 
-  cout << "Creation du solveur lineaire" << endl;
+  cout << "Utilisation de la librairie Eigen" << endl;
   _solverMethod.analyzePattern(A);
   _solverMethod.factorize(A);
 }
 
 void SystemBuilder::Build_sourceTerm()
 {
-  _sourceTerm.resize(_nb_pts);
+  cout << "Création de b (Taille " << _Asize << ") " << endl;
+  _sourceTerm.resize(_Asize);
   _sourceTerm.setZero();
-  for (int i = 0; i < _nb_pts; i++)
-  {
-    _sourceTerm.coeffRef(i)=0;
-  }
-}
-
-void SystemBuilder::BoundaryCondition_matA(SparseMatrix<double, RowMajor> A)
-{
-  cout << "-------------------------------------------------" << endl;
-  cout << "Modification de A en fonction des conditions aux bords : " << endl;
-
-  for (int i = 0; i < 2*_nb_pts; i++)
+  for (int i = 0; i < _Asize; i++)
   {
     cout.flush();
-    cout << "Progression : " << (double)i/(double)_nb_pts*100 << "% \r";
+    cout << "Progression : " << (double)i/((double)(_nb_pts))*100 << "% \r";
+
+    if(_src_choice == "constant")
+    {
+      _sourceTerm.coeffRef(i)=_a;
+    }
+    else if( _src_choice == "line")
+    {
+      _sourceTerm.coeffRef(i)=_a*i*_dx + _b;
+    }
+    else
+    {
+      _sourceTerm.coeffRef(i)=_a*i*_dx*i*_dx + _b*i*_dx + _c;
+    }
   }
 
-  cout << "-------------------------------------------------" << endl;
-}
 
-void SystemBuilder::BoundaryCondition_sourceTerm(SparseVector<double>& B)
-{
-  cout << "-------------------------------------------------" << endl;
-  cout << "Modification de b en fonction des conditions aux bords : " << endl;
-  for (int i = 0; i < _nb_pts; i++)
+  //Condition aux bords
+  if(BC_left == "dirichlet")
   {
-    if(i==0)
-      _sourceTerm.coeffRef(i)=_sourceTerm.coeffRef(i)+1;
+    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-2*_bL*_ul;
+    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+(1.-sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+(1.+sqrt(3))*_ul/2.;
+  }
+  else
+  {
+    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-2*_bL*_ul;
+    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+(1.-sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+(1.+sqrt(3))*_ul/2.;
+  }
+
+  if(BC_right == "dirichlet")
+  {
+    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+(1-sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+(1+sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-2*_bR*_ur;
+  }
+  else
+  {
+    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+(1-sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+(1+sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-2*_bR*_ur;
   }
 }
 
