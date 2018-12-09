@@ -35,7 +35,7 @@ void SystemBuilder::Build_matA()
 
   double alpha = 8; //sqrt(3)/2.+1;
   double beta = 4;//1-sqrt(3)/2.;
-  double mu =1.;//= TODO
+  double mu =1.;//= TODO 
 
   cout << "Création de A : " << endl;
   cout << "taille : "<< taille << endl;
