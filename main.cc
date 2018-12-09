@@ -29,6 +29,7 @@ int main(int argc, char** argv)
   // -------------------- Construction du système linéaire  --------------------
   auto start = chrono::high_resolution_clock::now();
   SystemBuilder* builder = new SystemBuilder(data_file);
+  builder->Build_matA();
   auto finish = chrono::high_resolution_clock::now();
   double t = chrono::duration_cast<chrono::milliseconds>(finish-start).count();
   // ---------------------------------------------------------------------------

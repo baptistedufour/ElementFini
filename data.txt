@@ -1,5 +1,5 @@
 Nmesh
-100
+4
 
 sigma
 constant 1
@@ -8,6 +8,10 @@ constant 1
 source_fct
 constant 0
 # constant value, line d e [f(x)=dx+e], curve e f g [f(x)=dx^2+ex+f]
+
+gamma0
+1000
+#Choix Gamma 0 pour definition du mu
 
 left_boundary_condition
 dirichlet 0

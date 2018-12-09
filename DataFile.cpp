@@ -10,7 +10,7 @@ using namespace std;
 DataFile::DataFile(std::string file_name)
 : _file_name(file_name),  _if_Nmesh_choice(false), _if_sigma_choice(false),
 _if_left_boundary_condition_choice(false),_if_right_boundary_condition_choice(false),
-_if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_results(false)
+_if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_results(false), _if_gamma0_choice(false)
 {}
 
   void DataFile::ReadDataFile()

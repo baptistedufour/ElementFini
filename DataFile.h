@@ -20,6 +20,7 @@ private:
   std::string _solver_choice;
   std::string _norm_L2_choice;
   std::string _results;
+  std::string _gamma0_choice;
 
   bool _if_Nmesh_choice;
   bool _if_sigma_choice;
@@ -30,6 +31,7 @@ private:
   bool _if_solver_choice;;
   bool _if_norm_L2_choice;
   bool _if_results;
+  bool _if_gamma0_choice;
 
 public: // Méthodes et opérateurs de la classe
   DataFile(std::string file_name);
@@ -43,6 +45,7 @@ public: // Méthodes et opérateurs de la classe
   std::string Get_solver_choice() const {return _solver_choice;};
   std::string Get_norm_L2_choice() const {return _norm_L2_choice;};
   std::string Get_results() const {return _results;};
+  std::string Get_gamma0_choice() const {return _gamma0_choice;};
 
   double Get_Nmesh() const {return _Nmesh_choice;};
   double Get_Pk_choice() const { return _Pk_choice;}
