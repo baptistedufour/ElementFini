@@ -1,0 +1,33 @@
+Nmesh
+100
+
+sigma
+constant 1
+# constant value, line a b [f(x)=ax+b], curve a b c [f(x)=ax^2+bx+c]
+
+source_fct
+constant 0
+# constant value, line d e [f(x)=dx+e], curve e f g [f(x)=dx^2+ex+f]
+
+left_boundary_condition
+dirichlet 0
+# neumann d(u_g)/dn, dirichlet u_g
+
+right_boundary_condition
+dirichlet 0
+# neumann d(u_g)/dn, dirichlet u_g
+
+Pk_element
+1
+# 1 (P_1) or (P_2)
+
+solver
+cholesky
+# cholesky or LU
+
+norm_L2
+no
+# yes or no
+
+results
+Results/
