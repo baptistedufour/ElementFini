@@ -1,5 +1,5 @@
 Nmesh
-9
+500
 
 sigma
 constant 1

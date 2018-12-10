@@ -153,7 +153,7 @@ void SystemBuilder::Build_matA()
   //Affichage
   Matrix<double, Dynamic, Dynamic> Matrix;
   Matrix = MatrixXd(_matA);
-  cout << Matrix << endl;
+  //cout << Matrix << endl;
 
   _matA = mu*_matA;
   SparseMatrix<double, ColMajor> A(_matA);

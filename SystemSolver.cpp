@@ -32,7 +32,7 @@ void SystemSolver::BuildSol()
 
   VectorXd solTemp(_nb_pts);
   solTemp = _solverMethod.solve(sourceTermTemp);
-  cout << solTemp << endl;
+  //cout << solTemp << endl;
 
   _sol.resize(_nb_pts);
   _sol.setZero();
