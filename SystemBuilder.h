@@ -39,9 +39,12 @@ class SystemBuilder
     const Eigen::SparseMatrix<double, Eigen::ColMajor> & Get_matA() const {return _matA;};
     const Eigen::SparseVector<double> & Get_sourceTerm() const {return _sourceTerm;};
     const double & Get_nb_pts() const {return _nb_pts;};
-
+    double Get_right_BC() const { return _ur;};
+    double Get_left_BC() const { return _ul;};
+    
     std::string Get_sigma_choice() const {return _sigma_choice;};
     std::string Get_source_fct_choice() const {return _src_choice;};
+
 };
 
 #define _SYSTEMBUILDER_H

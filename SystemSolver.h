@@ -17,7 +17,7 @@ class SystemSolver {
     Eigen::SparseVector<double>  _sol;
     Eigen::VectorXd  _sol2;
 
-    double _nb_pts;
+    double _nb_pts, _ur, _ul;
 
     Eigen::SparseLU<Eigen::SparseMatrix<double, Eigen::ColMajor>, Eigen::COLAMDOrdering<int> > _solverMethod;
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > _solverMethod2;

@@ -11,6 +11,7 @@ using namespace Eigen;
 
 SystemSolver::SystemSolver(SystemBuilder* builder) :
 _source_fct_choice(builder->Get_source_fct_choice()),
+_ur(builder->Get_right_BC()),_ul(builder->Get_left_BC()),
 _sigma_choice(builder->Get_sigma_choice())
 {
   _builder = builder;
@@ -52,6 +53,7 @@ void SystemSolver::SaveSol()
 	ofstream solution;
 	solution.open(name_file, ios::out);
 	solution.precision(7);
+  solution << 0 << " " << _ul << endl;
   for(int i=0; i<_nb_pts+1;i++)
   {
     if ((i!=0)&&(i!=_nb_pts))
@@ -68,6 +70,7 @@ void SystemSolver::SaveSol()
       solution << 1-dx/2. << " " << _sol.coeffRef(2*_nb_pts-1) << endl;
     }
   }
+  solution << 1 << " " << _ur << endl;
 	solution.close();
 }
 

@@ -153,7 +153,7 @@ void SystemBuilder::Build_matA()
   //Affichage
   Matrix<double, Dynamic, Dynamic> Matrix;
   Matrix = MatrixXd(_matA);
-  //cout << Matrix << endl;
+  cout << Matrix << endl;
 
   _matA = mu*_matA;
   SparseMatrix<double, ColMajor> A(_matA);
@@ -168,52 +168,58 @@ void SystemBuilder::Build_sourceTerm()
   cout << "Création de b (Taille " << _Asize << ") " << endl;
   _sourceTerm.resize(_Asize);
   _sourceTerm.setZero();
+
+
+  double mu =_gamma0/_dx;
   for (int i = 0; i < _Asize; i++)
   {
     cout.flush();
-    cout << "Progression : " << (double)i/((double)(_nb_pts))*100 << "% \r";
+    cout << "Progression : " << (double)i/((double)(_Asize))*100 << "% \r";
 
     if(_src_choice == "constant")
     {
-      _sourceTerm.coeffRef(i)=_a;
+      _sourceTerm.coeffRef(i)=_d;
     }
     else if( _src_choice == "line")
     {
-      _sourceTerm.coeffRef(i)=_a*i*_dx + _b;
+      _sourceTerm.coeffRef(i)=_d*i*_dx + _e;
     }
     else
     {
-      _sourceTerm.coeffRef(i)=_a*i*_dx*i*_dx + _b*i*_dx + _c;
+      _sourceTerm.coeffRef(i)=_d*i*_dx*i*_dx + _e*i*_dx + _f;
     }
   }
 
+  cout << "ul = " << _ul << "  ; ur = " << _ur <<  "          " << endl;
+  cout << "bL = " << _bL << " ; bR = " << _bR <<  "          " << endl;
 
   //Condition aux bords
   if(BC_left == "dirichlet")
   {
-    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-2*_bL*_ul;
-    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+(1.-sqrt(3))*_ul/2.;
-    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+(1.+sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-mu*2*_bL*_ul;
+    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+mu*(1.+sqrt(3))*_bL*_ul/2.;
+    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+mu*(1.-sqrt(3))*_bL*_ul/2.;
   }
   else
   {
-    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-2*_bL*_ul;
-    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+(1.-sqrt(3))*_ul/2.;
-    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+(1.+sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-mu*2*_bL*_ul;
+    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+mu*(1.-sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+mu*(1.+sqrt(3))*_ul/2.;
   }
 
   if(BC_right == "dirichlet")
   {
-    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+(1-sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+(1+sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-2*_bR*_ur;
+    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+mu*(1-sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+mu*(1+sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-mu*2*_bR*_ur;
   }
   else
   {
-    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+(1-sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+(1+sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-2*_bR*_ur;
+    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+mu*(1-sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+mu*(1+sqrt(3))*_bR*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-mu*2*_bR*_ur;
   }
+  cout << _sourceTerm << endl;
 }
 
 
