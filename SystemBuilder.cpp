@@ -223,9 +223,9 @@ void SystemBuilder::Build_sourceTerm()
   }
   else
   {
-    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-mu*2*_bL*_ul;
-    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+mu*(1.-sqrt(3))*_ul/2.;
-    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+mu*(1.+sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(0) += mu*2*_ul;
+    _sourceTerm.coeffRef(1) -= mu*(1.+sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(2) -= mu*(1.-sqrt(3))*_ul/2.;
   }
 
   if(BC_right == "dirichlet")
@@ -236,9 +236,9 @@ void SystemBuilder::Build_sourceTerm()
   }
   else
   {
-    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+mu*(1-sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+mu*(1+sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-mu*2*_bR*_ur;
+    _sourceTerm.coeffRef(_Asize-3) -= mu*(1-sqrt(3))*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-2) -= mu*(1+sqrt(3))*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-1) += mu*2*_ur;
   }
   cout << _sourceTerm << endl;
 }
