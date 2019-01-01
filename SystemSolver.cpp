@@ -38,6 +38,8 @@ void SystemSolver::BuildSol()
   _sol.resize(_nb_pts);
   _sol.setZero();
   _sol = solTemp.sparseView();
+
+  cout << "Test A*solApprox = " << endl << matTemp*_sol << endl;
 }
 
 // Sauvegarde la solution
@@ -48,7 +50,7 @@ void SystemSolver::SaveSol()
 	string name_file = "Resultats/sol.dat";
   string name_file2 = "Resultats/solbis.dat";
 
-  assert((_sol.size() == 2*_nb_pts) && "The size of the solution vector is not the same than the number of 2 * nb_pts !");
+  assert((_sol.size() == 2*(_nb_pts+1)) && "The size of the solution vector is not the same than the number of 2 * nb_pts !");
   double dx = 1./(_nb_pts+1);
 
 	ofstream solution;
@@ -64,27 +66,11 @@ void SystemSolver::SaveSol()
   solution2 << 0 << " " << _ul << endl;
   for(int i=0; i<_nb_pts+1;i++)
   {
-    if ((i!=0)&&(i!=_nb_pts))
-    {
-      solution << i*dx + dx*(sqrt(3)-1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i-1) << endl;
-      solution << i*dx + dx*(sqrt(3)+1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i) << endl;
+      solution << i*dx + dx*(sqrt(3)-1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i) << endl;
+      solution << i*dx + dx*(sqrt(3)+1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i+1) << endl;
 
-      solution2 << i*dx + 1e-6 << " " << alpha*_sol.coeffRef(2*i-1) + beta*_sol.coeffRef(2*i) << endl;
-      solution2 << (i+1)*dx - 1e-6 << " " << beta*_sol.coeffRef(2*i-1) + alpha*_sol.coeffRef(2*i) << endl;
-
-    }
-    else if (i==0)
-    {
-      solution << dx/2. << " " << _sol.coeffRef(0) << endl;
-
-      solution2 << dx - 1e-6 << " " << 2*_sol.coeffRef(0) - _ul << endl;
-    }
-    else
-    {
-      solution << 1-dx/2. << " " << _sol.coeffRef(2*_nb_pts-1) << endl;
-
-      solution2 << 1 - dx + 1e-6 << " " << 2*_sol.coeffRef(2*_nb_pts-1) - _ur << endl;
-    }
+      solution2 << i*dx + 1e-6 << " " << alpha*_sol.coeffRef(2*i) + beta*_sol.coeffRef(2*i+1) << endl;
+      solution2 << (i+1)*dx - 1e-6 << " " << beta*_sol.coeffRef(2*i) + alpha*_sol.coeffRef(2*i+1) << endl;
   }
   solution2 << 1 << " " << _ur << endl;
   solution2.close();

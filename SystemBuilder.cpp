@@ -19,7 +19,7 @@ _sigma_choice(data_file->Get_sigma_choice())
 {
   //Parametre
   _dx = 1./(_nb_pts+1);
-  _Asize = 2*_nb_pts;
+  _Asize = 2*(_nb_pts+1);
 
   //Conditions aux bords (neumann, dirichlet u_g)
   if(BC_right == "dirichlet")
@@ -70,83 +70,47 @@ void SystemBuilder::Build_matA()
      cout.flush();
      cout << "Progression : " << (double)i/((double)(_nb_pts))*100 << "% \r";
 
-     if( (i > 1) && (i < _nb_pts-1) )
+     if( (i > 0) && (i < _nb_pts) )
      {
-       _matA.coeffRef(2*i-1,2*i-3) = 0.5;
-       _matA.coeffRef(2*i-1,2*i-2) = -alpha;
-       _matA.coeffRef(2*i-1,2*i-1) = 2;
-       _matA.coeffRef(2*i-1,2*i)   = -1;
-       _matA.coeffRef(2*i-1,2*i+1) = 0.5;
-       _matA.coeffRef(2*i-1,2*i+2) = -beta;
-
-       _matA.coeffRef(2*i,2*i-3) = -beta;
        _matA.coeffRef(2*i,2*i-2) = 0.5;
-       _matA.coeffRef(2*i,2*i-1) = -1;
+       _matA.coeffRef(2*i,2*i-1) = -alpha;
        _matA.coeffRef(2*i,2*i)   = 2;
-       _matA.coeffRef(2*i,2*i+1) = -alpha;
+       _matA.coeffRef(2*i,2*i+1) = -1;
        _matA.coeffRef(2*i,2*i+2) = 0.5;
-     }
+       _matA.coeffRef(2*i,2*i+3) = -beta;
 
-     else if (i==1)
-     {
-       _matA.coeffRef(2*i-1,2*i-1) = 2;
-       _matA.coeffRef(2*i-1,2*i)   = -1;
-       _matA.coeffRef(2*i-1,2*i+1) = 0.5;
-       _matA.coeffRef(2*i-1,2*i+2) = -beta;
-
-       _matA.coeffRef(2*i,2*i-1) = -1;
-       _matA.coeffRef(2*i,2*i)   = 2;
-       _matA.coeffRef(2*i,2*i+1) = -alpha;
-       _matA.coeffRef(2*i,2*i+2) = 0.5;
-
-       if(BC_left == "dirichlet")
-       {
-         _matA.coeffRef(2*i-1,2*i-2) = -(1+sqrt(3));
-         _matA.coeffRef(2*i  ,2*i-2) = -(1-sqrt(3));
-       }
-       else
-       {
-         _matA.coeffRef(2*i-1,2*i-2) = 0;
-         _matA.coeffRef(2*i  ,2*i-2) = 0;
-       }
-     }
-
-     else if (i==_nb_pts-1)
-     {
-       _matA.coeffRef(2*i-1,2*i-3) = 0.5;
-       _matA.coeffRef(2*i-1,2*i-2) = -alpha;
-       _matA.coeffRef(2*i-1,2*i-1) = 2;
-       _matA.coeffRef(2*i-1,2*i)   = -1;
-
-       _matA.coeffRef(2*i,2*i-3) = -beta;
-       _matA.coeffRef(2*i,2*i-2) = 0.5;
-       _matA.coeffRef(2*i,2*i-1) = -1;
-       _matA.coeffRef(2*i,2*i)   = 2;
-
-       if(BC_right == "dirichlet")
-       {
-         _matA.coeffRef(2*i-1,2*i+1) = -(1-sqrt(3));
-         _matA.coeffRef(2*i  ,2*i+1) = -(1+sqrt(3));
-       }
-       else
-       {
-         _matA.coeffRef(2*i-1,2*i+1) = 0;
-         _matA.coeffRef(2*i  ,2*i+1) = 0;
-       }
+       _matA.coeffRef(2*i+1,2*i-2) = -beta;
+       _matA.coeffRef(2*i+1,2*i-1) = 0.5;
+       _matA.coeffRef(2*i+1,2*i)   = -1;
+       _matA.coeffRef(2*i+1,2*i+1) = 2;
+       _matA.coeffRef(2*i+1,2*i+2) = -alpha;
+       _matA.coeffRef(2*i+1,2*i+3) = 0.5;
      }
 
      else if (i==0)
      {
-       _matA.coeffRef(2*i,2*i)   = 4.;
-       _matA.coeffRef(2*i,2*i+1) = -(1.+sqrt(3));
-       _matA.coeffRef(2*i,2*i+2) = -(1.-sqrt(3));
+       _matA.coeffRef(2*i,2*i)   = 2;
+       _matA.coeffRef(2*i,2*i+1) = -1;
+       _matA.coeffRef(2*i,2*i+2) = 0.5;
+       _matA.coeffRef(2*i,2*i+3) = -beta;
+
+       _matA.coeffRef(2*i+1,2*i)   = -1;
+       _matA.coeffRef(2*i+1,2*i+1) = 2;
+       _matA.coeffRef(2*i+1,2*i+2) = -alpha;
+       _matA.coeffRef(2*i+1,2*i+3) = 0.5;
      }
 
      else
      {
-       _matA.coeffRef(2*i-1,2*i-3) = -(1.-sqrt(3));
-       _matA.coeffRef(2*i-1,2*i-2) = -(1.+sqrt(3));
-       _matA.coeffRef(2*i-1,2*i-1) = 4.;
+       _matA.coeffRef(2*i,2*i-2) = 0.5;
+       _matA.coeffRef(2*i,2*i-1) = -alpha;
+       _matA.coeffRef(2*i,2*i)   = 2;
+       _matA.coeffRef(2*i,2*i+1) = -1;
+
+       _matA.coeffRef(2*i+1,2*i-2) = -beta;
+       _matA.coeffRef(2*i+1,2*i-1) = 0.5;
+       _matA.coeffRef(2*i+1,2*i)   = -1;
+       _matA.coeffRef(2*i+1,2*i+1) = 2;
      }
   }
 
@@ -167,19 +131,8 @@ void SystemBuilder::Build_matA()
   solExact.resize(_Asize);
   for(int i=0; i<_nb_pts+1;i++)
   {
-    if ((i!=0)&&(i!=_nb_pts))
-    {
-      solExact.coeffRef(2*i-1) = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
-      solExact.coeffRef(2*i) = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
-    }
-    else if (i==0)
-    {
-      solExact.coeffRef(0) = _dx/2.;
-    }
-    else
-    {
-      solExact.coeffRef(2*_nb_pts-1) = 1-_dx/2.;
-    }
+      solExact.coeffRef(2*i) = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
+      solExact.coeffRef(2*i+1) = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
   }
   cout << "Verif A*solExact = " << endl << A*solExact << endl;
 }
@@ -211,15 +164,14 @@ void SystemBuilder::Build_sourceTerm()
     }
   }
 
-  cout << "ul = " << _ul << "  ; ur = " << _ur <<  "          " << endl;
+  //  cout << "ul = " << _ul << "  ; ur = " << _ur <<  "          " << endl;
   //cout << "bL = " << _bL << " ; bR = " << _bR <<  "          " << endl;
 
   //Condition aux bords
   if(BC_left == "dirichlet")
   {
-    _sourceTerm.coeffRef(0) += mu*2*_ul;
-    _sourceTerm.coeffRef(1) -= mu*(1.+sqrt(3))*_ul/2.;
-    _sourceTerm.coeffRef(2) -= mu*(1.-sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(0) += mu*(1.+sqrt(3))*_ul/2;
+    _sourceTerm.coeffRef(1) += mu*(1.-sqrt(3))*_ul/2.;
   }
   else
   {
@@ -230,9 +182,8 @@ void SystemBuilder::Build_sourceTerm()
 
   if(BC_right == "dirichlet")
   {
-    _sourceTerm.coeffRef(_Asize-3) -= mu*(1-sqrt(3))*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-2) -= mu*(1+sqrt(3))*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-1) += mu*2*_ur;
+    _sourceTerm.coeffRef(_Asize-2) += mu*(1-sqrt(3))*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-1) += mu*(1+sqrt(3))*_ur/2.;
   }
   else
   {
