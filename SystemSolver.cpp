@@ -46,6 +46,7 @@ void SystemSolver::SaveSol()
   cout << "-------------------------------------------------" << endl;
   cout << "Sauvegarde de la solution " << endl;
 	string name_file = "Resultats/sol.dat";
+  string name_file2 = "Resultats/solbis.dat";
 
   assert((_sol.size() == 2*_nb_pts) && "The size of the solution vector is not the same than the number of 2 * nb_pts !");
   double dx = 1./(_nb_pts+1);
@@ -53,23 +54,41 @@ void SystemSolver::SaveSol()
 	ofstream solution;
 	solution.open(name_file, ios::out);
 	solution.precision(7);
+
+  ofstream solution2;
+  solution2.open(name_file2, ios::out);
+  solution2.precision(7);
+  double alpha = (1.+sqrt(3))/2., beta = (1.-sqrt(3))/2.;
+
   solution << 0 << " " << _ul << endl;
+  solution2 << 0 << " " << _ul << endl;
   for(int i=0; i<_nb_pts+1;i++)
   {
     if ((i!=0)&&(i!=_nb_pts))
     {
       solution << i*dx + dx*(sqrt(3)-1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i-1) << endl;
       solution << i*dx + dx*(sqrt(3)+1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i) << endl;
+
+      solution2 << i*dx + 1e-6 << " " << alpha*_sol.coeffRef(2*i-1) + beta*_sol.coeffRef(2*i) << endl;
+      solution2 << (i+1)*dx - 1e-6 << " " << beta*_sol.coeffRef(2*i-1) + alpha*_sol.coeffRef(2*i) << endl;
+
     }
     else if (i==0)
     {
       solution << dx/2. << " " << _sol.coeffRef(0) << endl;
+
+      solution2 << dx - 1e-6 << " " << 2*_sol.coeffRef(0) - _ul << endl;
     }
     else
     {
       solution << 1-dx/2. << " " << _sol.coeffRef(2*_nb_pts-1) << endl;
+
+      solution2 << 1 - dx + 1e-6 << " " << 2*_sol.coeffRef(2*_nb_pts-1) - _ur << endl;
     }
   }
+  solution2 << 1 << " " << _ur << endl;
+  solution2.close();
+
   solution << 1 << " " << _ur << endl;
 	solution.close();
 }

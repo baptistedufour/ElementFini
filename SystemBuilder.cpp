@@ -61,7 +61,7 @@ void SystemBuilder::Build_matA()
   _matA.resize(_Asize,_Asize);
   _matA.setZero();
 
-  double alpha = sqrt(3)/2.+1;
+  double alpha = 1+sqrt(3)/2.;
   double beta = 1-sqrt(3)/2.;
   double mu =_gamma0/_dx;
 
@@ -101,8 +101,8 @@ void SystemBuilder::Build_matA()
 
        if(BC_left == "dirichlet")
        {
-         _matA.coeffRef(2*i-1,2*i-2) = -_aL*(1+sqrt(3))/2.;
-         _matA.coeffRef(2*i  ,2*i-2) = -_aL*(1-sqrt(3))/2.;
+         _matA.coeffRef(2*i-1,2*i-2) = -(1+sqrt(3));
+         _matA.coeffRef(2*i  ,2*i-2) = -(1-sqrt(3));
        }
        else
        {
@@ -125,8 +125,8 @@ void SystemBuilder::Build_matA()
 
        if(BC_right == "dirichlet")
        {
-         _matA.coeffRef(2*i-1,2*i+1) = -_aR*(1-sqrt(3))/2.;
-         _matA.coeffRef(2*i  ,2*i+1) = -_aR*(1+sqrt(3))/2.;
+         _matA.coeffRef(2*i-1,2*i+1) = -(1-sqrt(3));
+         _matA.coeffRef(2*i  ,2*i+1) = -(1+sqrt(3));
        }
        else
        {
@@ -137,16 +137,16 @@ void SystemBuilder::Build_matA()
 
      else if (i==0)
      {
-       _matA.coeffRef(2*i,2*i)   = 2*_aL;
-       _matA.coeffRef(2*i,2*i+1) = -(1+sqrt(3));
-       _matA.coeffRef(2*i,2*i+2) = -(1-sqrt(3));
+       _matA.coeffRef(2*i,2*i)   = 4.;
+       _matA.coeffRef(2*i,2*i+1) = -(1.+sqrt(3));
+       _matA.coeffRef(2*i,2*i+2) = -(1.-sqrt(3));
      }
 
      else
      {
-       _matA.coeffRef(2*i-1,2*i-3) = -(1-sqrt(3));
-       _matA.coeffRef(2*i-1,2*i-2) = -(1+sqrt(3));
-       _matA.coeffRef(2*i-1,2*i-1) = 2*_aR;
+       _matA.coeffRef(2*i-1,2*i-3) = -(1.-sqrt(3));
+       _matA.coeffRef(2*i-1,2*i-2) = -(1.+sqrt(3));
+       _matA.coeffRef(2*i-1,2*i-1) = 4.;
      }
   }
 
@@ -161,6 +161,27 @@ void SystemBuilder::Build_matA()
   cout << "Utilisation de la librairie Eigen" << endl;
   _solverMethod.analyzePattern(A);
   _solverMethod.factorize(A);
+
+  //Test
+  Eigen::SparseVector<double> solExact;
+  solExact.resize(_Asize);
+  for(int i=0; i<_nb_pts+1;i++)
+  {
+    if ((i!=0)&&(i!=_nb_pts))
+    {
+      solExact.coeffRef(2*i-1) = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
+      solExact.coeffRef(2*i) = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
+    }
+    else if (i==0)
+    {
+      solExact.coeffRef(0) = _dx/2.;
+    }
+    else
+    {
+      solExact.coeffRef(2*_nb_pts-1) = 1-_dx/2.;
+    }
+  }
+  cout << "Verif A*solExact = " << endl << A*solExact << endl;
 }
 
 void SystemBuilder::Build_sourceTerm()
@@ -196,9 +217,9 @@ void SystemBuilder::Build_sourceTerm()
   //Condition aux bords
   if(BC_left == "dirichlet")
   {
-    _sourceTerm.coeffRef(0) = _sourceTerm.coeffRef(0)-mu*2*_bL*_ul;
-    _sourceTerm.coeffRef(1) = _sourceTerm.coeffRef(1)+mu*(1.+sqrt(3))*_bL*_ul/2.;
-    _sourceTerm.coeffRef(2) = _sourceTerm.coeffRef(2)+mu*(1.-sqrt(3))*_bL*_ul/2.;
+    _sourceTerm.coeffRef(0) += mu*2*_ul;
+    _sourceTerm.coeffRef(1) -= mu*(1.+sqrt(3))*_ul/2.;
+    _sourceTerm.coeffRef(2) -= mu*(1.-sqrt(3))*_ul/2.;
   }
   else
   {
@@ -209,9 +230,9 @@ void SystemBuilder::Build_sourceTerm()
 
   if(BC_right == "dirichlet")
   {
-    _sourceTerm.coeffRef(_Asize-3) = _sourceTerm.coeffRef(_Asize-3)+mu*(1-sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-2) = _sourceTerm.coeffRef(_Asize-2)+mu*(1+sqrt(3))*_bR*_ur/2.;
-    _sourceTerm.coeffRef(_Asize-1) = _sourceTerm.coeffRef(_Asize-1)-mu*2*_bR*_ur;
+    _sourceTerm.coeffRef(_Asize-3) -= mu*(1-sqrt(3))*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-2) -= mu*(1+sqrt(3))*_ur/2.;
+    _sourceTerm.coeffRef(_Asize-1) += mu*2*_ur;
   }
   else
   {
