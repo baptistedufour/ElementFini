@@ -212,7 +212,7 @@ void SystemBuilder::Build_sourceTerm()
   }
 
   cout << "ul = " << _ul << "  ; ur = " << _ur <<  "          " << endl;
-  cout << "bL = " << _bL << " ; bR = " << _bR <<  "          " << endl;
+  //cout << "bL = " << _bL << " ; bR = " << _bR <<  "          " << endl;
 
   //Condition aux bords
   if(BC_left == "dirichlet")
