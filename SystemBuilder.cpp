@@ -70,6 +70,7 @@ void SystemBuilder::Build_matA()
      cout.flush();
      cout << "Progression : " << (double)i/((double)(_nb_pts))*100 << "% \r";
 
+/*
      _matA.coeffRef(2*i,0) += -_ul*(1.+sqrt(3))/2.;
      _matA.coeffRef(2*i,1) += -_ul*(1.-sqrt(3))/2.;
      _matA.coeffRef(2*i,2*_nb_pts)   += -_ur*(1.-sqrt(3))/2.;
@@ -79,6 +80,7 @@ void SystemBuilder::Build_matA()
      _matA.coeffRef(2*i+1,1) += -_ul*(1.-sqrt(3))/2.;
      _matA.coeffRef(2*i+1,2*_nb_pts)   += -_ur*(1.-sqrt(3))/2.;
      _matA.coeffRef(2*i+1,2*_nb_pts+1) += -_ur*(1.+sqrt(3))/2.;
+*/
 
      if( (i > 0) && (i < _nb_pts) )
      {
@@ -108,6 +110,12 @@ void SystemBuilder::Build_matA()
        _matA.coeffRef(2*i+1,2*i+1) += 2;
        _matA.coeffRef(2*i+1,2*i+2) += -alpha;
        _matA.coeffRef(2*i+1,2*i+3) += 0.5;
+
+
+       _matA.coeffRef(2*i,2*i) += -_ul*(1.+sqrt(3))/2.;
+       _matA.coeffRef(2*i,2*i+1) += -_ul*(1.-sqrt(3))/2.;
+       _matA.coeffRef(2*i+1,2*i) += -_ul*(1.+sqrt(3))/2.;
+       _matA.coeffRef(2*i+1,2*i+1) += -_ul*(1.-sqrt(3))/2.;
      }
 
      else
@@ -121,6 +129,12 @@ void SystemBuilder::Build_matA()
        _matA.coeffRef(2*i+1,2*i-1) += 0.5;
        _matA.coeffRef(2*i+1,2*i)   += -1;
        _matA.coeffRef(2*i+1,2*i+1) += 2;
+
+
+       _matA.coeffRef(2*i,2*i) += -_ur*(1.+sqrt(3))/2.;
+       _matA.coeffRef(2*i,2*i+1) += -_ur*(1.-sqrt(3))/2.;
+       _matA.coeffRef(2*i+1,2*i) += -_ur*(1.+sqrt(3))/2.;
+       _matA.coeffRef(2*i+1,2*i+1) += -_ur*(1.-sqrt(3))/2.;
      }
   }
 
@@ -174,20 +188,21 @@ void SystemBuilder::Build_sourceTerm()
     }
   }
 
-  //  cout << "ul = " << _ul << "  ; ur = " << _ur <<  "          " << endl;
-  //cout << "bL = " << _bL << " ; bR = " << _bR <<  "          " << endl;
-
+  /*
   for (int i = 0; i < _nb_pts+1; i++)
   {
     _sourceTerm.coeffRef(2*i)   -= mu*(_ul*_ul+_ur*_ur);
     _sourceTerm.coeffRef(2*i+1) -= mu*(_ul*_ul+_ur*_ur);
-  }
+  }*/
 
   //Condition aux bords
   if(BC_left == "dirichlet")
   {
     _sourceTerm.coeffRef(0) += mu*(1.+sqrt(3))*_ul/2;
     _sourceTerm.coeffRef(1) += mu*(1.-sqrt(3))*_ul/2.;
+
+    _sourceTerm.coeffRef(0) -= mu*(_ul*_ul);
+    _sourceTerm.coeffRef(1) -= mu*(_ul*_ul);
   }
   else
   {
@@ -200,6 +215,9 @@ void SystemBuilder::Build_sourceTerm()
   {
     _sourceTerm.coeffRef(_Asize-2) += mu*(1-sqrt(3))*_ur/2.;
     _sourceTerm.coeffRef(_Asize-1) += mu*(1+sqrt(3))*_ur/2.;
+
+    _sourceTerm.coeffRef(_Asize-2) -= mu*(_ur*_ur);
+    _sourceTerm.coeffRef(_Asize-1) -= mu*(_ur*_ur);
   }
   else
   {
