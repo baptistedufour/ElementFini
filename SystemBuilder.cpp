@@ -70,47 +70,57 @@ void SystemBuilder::Build_matA()
      cout.flush();
      cout << "Progression : " << (double)i/((double)(_nb_pts))*100 << "% \r";
 
+     _matA.coeffRef(2*i,0) += -_ul*(1.+sqrt(3))/2.;
+     _matA.coeffRef(2*i,1) += -_ul*(1.-sqrt(3))/2.;
+     _matA.coeffRef(2*i,2*_nb_pts)   += -_ur*(1.-sqrt(3))/2.;
+     _matA.coeffRef(2*i,2*_nb_pts+1) += -_ur*(1.+sqrt(3))/2.;
+
+     _matA.coeffRef(2*i+1,0) += -_ul*(1.+sqrt(3))/2.;
+     _matA.coeffRef(2*i+1,1) += -_ul*(1.-sqrt(3))/2.;
+     _matA.coeffRef(2*i+1,2*_nb_pts)   += -_ur*(1.-sqrt(3))/2.;
+     _matA.coeffRef(2*i+1,2*_nb_pts+1) += -_ur*(1.+sqrt(3))/2.;
+
      if( (i > 0) && (i < _nb_pts) )
      {
-       _matA.coeffRef(2*i,2*i-2) = 0.5;
-       _matA.coeffRef(2*i,2*i-1) = -alpha;
-       _matA.coeffRef(2*i,2*i)   = 2;
-       _matA.coeffRef(2*i,2*i+1) = -1;
-       _matA.coeffRef(2*i,2*i+2) = 0.5;
-       _matA.coeffRef(2*i,2*i+3) = -beta;
+       _matA.coeffRef(2*i,2*i-2) += 0.5;
+       _matA.coeffRef(2*i,2*i-1) += -alpha;
+       _matA.coeffRef(2*i,2*i)   += 2;
+       _matA.coeffRef(2*i,2*i+1) += -1;
+       _matA.coeffRef(2*i,2*i+2) += 0.5;
+       _matA.coeffRef(2*i,2*i+3) += -beta;
 
-       _matA.coeffRef(2*i+1,2*i-2) = -beta;
-       _matA.coeffRef(2*i+1,2*i-1) = 0.5;
-       _matA.coeffRef(2*i+1,2*i)   = -1;
-       _matA.coeffRef(2*i+1,2*i+1) = 2;
-       _matA.coeffRef(2*i+1,2*i+2) = -alpha;
-       _matA.coeffRef(2*i+1,2*i+3) = 0.5;
+       _matA.coeffRef(2*i+1,2*i-2) += -beta;
+       _matA.coeffRef(2*i+1,2*i-1) += 0.5;
+       _matA.coeffRef(2*i+1,2*i)   += -1;
+       _matA.coeffRef(2*i+1,2*i+1) += 2;
+       _matA.coeffRef(2*i+1,2*i+2) += -alpha;
+       _matA.coeffRef(2*i+1,2*i+3) += 0.5;
      }
 
      else if (i==0)
      {
-       _matA.coeffRef(2*i,2*i)   = 2;
-       _matA.coeffRef(2*i,2*i+1) = -1;
-       _matA.coeffRef(2*i,2*i+2) = 0.5;
-       _matA.coeffRef(2*i,2*i+3) = -beta;
+       _matA.coeffRef(2*i,2*i)   += 2;
+       _matA.coeffRef(2*i,2*i+1) += -1;
+       _matA.coeffRef(2*i,2*i+2) += 0.5;
+       _matA.coeffRef(2*i,2*i+3) += -beta;
 
-       _matA.coeffRef(2*i+1,2*i)   = -1;
-       _matA.coeffRef(2*i+1,2*i+1) = 2;
-       _matA.coeffRef(2*i+1,2*i+2) = -alpha;
-       _matA.coeffRef(2*i+1,2*i+3) = 0.5;
+       _matA.coeffRef(2*i+1,2*i)   += -1;
+       _matA.coeffRef(2*i+1,2*i+1) += 2;
+       _matA.coeffRef(2*i+1,2*i+2) += -alpha;
+       _matA.coeffRef(2*i+1,2*i+3) += 0.5;
      }
 
      else
      {
-       _matA.coeffRef(2*i,2*i-2) = 0.5;
-       _matA.coeffRef(2*i,2*i-1) = -alpha;
-       _matA.coeffRef(2*i,2*i)   = 2;
-       _matA.coeffRef(2*i,2*i+1) = -1;
+       _matA.coeffRef(2*i,2*i-2) += 0.5;
+       _matA.coeffRef(2*i,2*i-1) += -alpha;
+       _matA.coeffRef(2*i,2*i)   += 2;
+       _matA.coeffRef(2*i,2*i+1) += -1;
 
-       _matA.coeffRef(2*i+1,2*i-2) = -beta;
-       _matA.coeffRef(2*i+1,2*i-1) = 0.5;
-       _matA.coeffRef(2*i+1,2*i)   = -1;
-       _matA.coeffRef(2*i+1,2*i+1) = 2;
+       _matA.coeffRef(2*i+1,2*i-2) += -beta;
+       _matA.coeffRef(2*i+1,2*i-1) += 0.5;
+       _matA.coeffRef(2*i+1,2*i)   += -1;
+       _matA.coeffRef(2*i+1,2*i+1) += 2;
      }
   }
 
@@ -166,6 +176,12 @@ void SystemBuilder::Build_sourceTerm()
 
   //  cout << "ul = " << _ul << "  ; ur = " << _ur <<  "          " << endl;
   //cout << "bL = " << _bL << " ; bR = " << _bR <<  "          " << endl;
+
+  for (int i = 0; i < _nb_pts+1; i++)
+  {
+    _sourceTerm.coeffRef(2*i)   -= mu*(_ul*_ul+_ur*_ur);
+    _sourceTerm.coeffRef(2*i+1) -= mu*(_ul*_ul+_ur*_ur);
+  }
 
   //Condition aux bords
   if(BC_left == "dirichlet")
