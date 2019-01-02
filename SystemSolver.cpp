@@ -39,7 +39,7 @@ void SystemSolver::BuildSol()
   _sol.setZero();
   _sol = solTemp.sparseView();
 
-  cout << "Test A*solApprox = " << endl << matTemp*_sol << endl;
+  //cout << "Test A*solApprox = " << endl << matTemp*_sol << endl;
 }
 
 // Sauvegarde la solution
@@ -77,6 +77,7 @@ void SystemSolver::SaveSol()
 
   solution << 1 << " " << _ur << endl;
 	solution.close();
+  cout << "-------------------------------------------------" << endl;
 }
 
 
