@@ -54,13 +54,13 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
         {
           data_file >> _a >> _b;
         }
-        else if (_sigma_choice == "curve")
+        else if (_sigma_choice == "creneau")
         {
           data_file >> _a >> _b >> _c;
         }
         else
         {
-          cout << "Only constant, line and curve sigma are implemented." << endl;
+          cout << "Only constant, line and creneau sigma are implemented." << endl;
           abort();
         }
       }
@@ -68,21 +68,21 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
       if (file_line.find("source_fct") != std::string::npos)
       {
         data_file >> _source_fct_choice; _if_source_fct_choice = true;
-        if (_sigma_choice == "constant")
+        if (_source_fct_choice == "constant")
         {
           data_file >> _d;
         }
-        else if ((_sigma_choice == "line"))
+        else if (_source_fct_choice == "line")
         {
           data_file >> _d >> _e;
         }
-        else if (_sigma_choice == "curve")
+        else if (_source_fct_choice == "creneau")
         {
           data_file >> _d >> _e >> _f;
         }
         else
         {
-          cout << "Only constant, line and curve source function are implemented." << endl;
+          cout << "Only constant, line and creneau source function are implemented." << endl;
           abort();
         }
       }

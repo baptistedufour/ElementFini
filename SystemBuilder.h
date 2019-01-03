@@ -12,7 +12,7 @@ class SystemBuilder
   private:
     Eigen::SparseMatrix<double, Eigen::ColMajor> _matAm, _matAs, _matA;
     Eigen::SparseVector<double> _sourceTerm;
-		std::vector<double> _sigma;
+		Eigen::SparseVector<double> _sigma;
 
 
     double _nb_pts, _Asize;

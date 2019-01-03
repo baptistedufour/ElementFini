@@ -1,13 +1,13 @@
 Nmesh
-50
+100
 
 sigma
 constant 1
-# constant value, line a b [f(x)=ax+b], curve a b c [f(x)=ax^2+bx+c]
+# constant value, line a b [f(x)=ax+b], creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct
-constant 1
-# constant value, line d e [f(x)=dx+e], curve e f g [f(x)=dx^2+ex+f]
+constant 0
+# constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon]
 
 gamma0
 10
@@ -18,7 +18,7 @@ dirichlet 0
 # neumann d(u_g)/dn, dirichlet u_g
 
 right_boundary_condition
-dirichlet 0
+dirichlet 1
 # neumann d(u_g)/dn, dirichlet u_g
 
 Pk_element

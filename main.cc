@@ -46,6 +46,7 @@ int main(int argc, char** argv)
   t = chrono::duration_cast<chrono::milliseconds>(finish-start).count();
 
   cout << "Time to compute : "<< t*0.001 << " seconds" << endl;
+  cout << "-------------------------------------------------" << endl;
 
   //------------------- Si on connait la solution exacte -----------------------
   /*

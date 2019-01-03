@@ -20,8 +20,63 @@ _sigma_choice(data_file->Get_sigma_choice())
   //Parametre
   _dx = 1./(_nb_pts+1.);
   _Asize = 2*(_nb_pts+1);
+
+  //sigma
+  if(_sigma_choice == "line")
+  {
+    _b = data_file->Get_param_b();
+  }
+  else if (_sigma_choice == "creneau")
+  {
+    _b = data_file->Get_param_b();
+    _c = data_file->Get_param_c();
+  }
+
   _sigma.resize(_Asize);
-  _sigma[0] = 1.;
+  double xk, xk1;
+  for(int i = 0; i < _nb_pts+1; i++)
+  {
+    if(_sigma_choice == "constant")
+    {
+      _sigma.coeffRef(2*i) = _a;
+      _sigma.coeffRef(2*i+1) = _a;
+    }
+    else
+    {
+      xk  = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
+      xk1 = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
+      if(_sigma_choice == "creneau")
+      {
+        if ((xk<=_b)&&(xk>=_a))
+        {
+          _sigma.coeffRef(2*i) = _c;
+        }
+        else
+        {
+          _sigma.coeffRef(2*i) = 1.;
+        }
+
+        if ((xk1<=_b)&&(xk>=_a))
+        {
+          _sigma.coeffRef(2*i+1) = _c;
+        }
+        else
+        {
+          _sigma.coeffRef(2*i+1) = 1.;
+        }
+      }
+      else if(_sigma_choice == "line")
+      {
+        _sigma.coeffRef(2*i)=xk;
+        _sigma.coeffRef(2*i+1)=xk1;
+      }
+      else
+      {
+        _sigma.coeffRef(2*i) = 1.;
+        _sigma.coeffRef(2*i+1) = 1.;
+      }
+    }
+  }
 
   _matAm.resize(_Asize,_Asize);
   _matAm.setZero();
@@ -30,37 +85,17 @@ _sigma_choice(data_file->Get_sigma_choice())
   _matA.resize(_Asize,_Asize);
   _matA.setZero();
 
-  //Conditions aux bords (neumann, dirichlet u_g)
-  if(BC_right == "dirichlet")
-  {
-    _aR = 2; _bR = -1;
-  }
-  else
-  {
-    _aR = 1; _bR = -_dx/2.;
-  }
-
-  if(BC_left == "dirichlet")
-  {
-    _aL = 2; _bL = -1;
-  }
-  else
-  {
-    _aL = 1; _bL = -_dx/2.;
-  }
 
   //Terme source
-  if( _src_choice == "line" )
+  if(_src_choice == "line")
   {
-    _b = data_file->Get_param_b();
+    _e = data_file->Get_param_e();
   }
-  else if( _src_choice == "curve" )
+  else if (_src_choice == "creneau")
   {
-    _b = data_file->Get_param_b();
-    _c = data_file->Get_param_b();
+    _e = data_file->Get_param_e();
+    _f = data_file->Get_param_f();
   }
-
-  //system("mkdir -p ./Results");
 }
 
 
@@ -74,7 +109,7 @@ void SystemBuilder::Build_matA()
   double beta_s  = (3-sqrt(3))/(2.*_dx);
   double gamma_s = 3/(2.*_dx);
   double mu =_gamma0/_dx;
-  double sigma = _sigma[0];
+  double sigma = _sigma.coeffRef(0);
 
   for (int i = 0; i < _nb_pts+1; i++)
   {
@@ -158,46 +193,27 @@ void SystemBuilder::Build_matA()
      }
   }
 
-  //Affichage
-  Matrix<double, Dynamic, Dynamic> Matrix;
-  //Matrix = MatrixXd(_matAm);
-  //cout << " Mat sans mu :" << endl << Matrix << endl;
-
   _matAm = mu*_matAm;
-  //Matrix = MatrixXd(_matAm);
-  //cout << endl << " Mat mu : " << endl << Matrix << endl;
-
-  //cout << endl << " --- " << endl << endl;
-
-  //Matrix = MatrixXd(_matAs);
-  //cout << " Mat sans sigma :" << endl << Matrix << endl;
-
-  _matAs = sigma*_matAs;
-  //Matrix = MatrixXd(_matAs);
-  //cout << endl << " Mat sigma : " << endl << Matrix << endl;
-
-  //cout << endl << " --- " << endl << endl;
-
+  //_matAs = sigma*matA;
+  for(int i=0; i < _Asize; i++)
+  {
+    for(int j=0; j < _Asize; j++)
+    {
+      _matAs.coeffRef(i,j) = _matAs.coeffRef(i,j)*_sigma.coeffRef(i);
+    }
+  }
   _matA = _matAm + _matAs;
+
+  Matrix<double, Dynamic, Dynamic> Matrix;
   Matrix = MatrixXd(_matA);
   //cout << Matrix << endl;
   //cout << endl << " --- " << endl << endl;
 
   SparseMatrix<double, ColMajor> A(_matA);
 
-  cout << "Factorisation LU" << endl;
+  cout << "Factorisation LU                 " << endl;
   _solverMethod.analyzePattern(A);
   _solverMethod.factorize(A);
-
-  //Test
-  /*Eigen::SparseVector<double> solExact;
-  solExact.resize(_Asize);
-  for(int i=0; i<_nb_pts+1;i++)
-  {
-      solExact.coeffRef(2*i) = i*_dx + _dx*(sqrt(3)-1.)/(2.*sqrt(3));
-      solExact.coeffRef(2*i+1) = i*_dx + _dx*(sqrt(3)+1.)/(2.*sqrt(3));
-  }
-  cout << "Verif A*solExact = " << endl << A*solExact << endl;*/
 }
 
 void SystemBuilder::Build_sourceTerm()
@@ -206,8 +222,9 @@ void SystemBuilder::Build_sourceTerm()
   _sourceTerm.resize(_Asize);
   _sourceTerm.setZero();
 
-  double sigma = _sigma[0];
+  double sigma = _sigma.coeffRef(0);
   double mu =_gamma0/_dx;
+  double xk, xk1;
   for (int i = 0; i < _nb_pts+1; i++)
   {
     cout.flush();
@@ -218,25 +235,45 @@ void SystemBuilder::Build_sourceTerm()
       _sourceTerm.coeffRef(2*i)   = _d;
       _sourceTerm.coeffRef(2*i+1) = _d;
 
-      _sourceTerm.coeffRef(2*i)   *= 0.5;
-      _sourceTerm.coeffRef(2*i+1) *= 0.5;
+      _sourceTerm.coeffRef(2*i)   *= _dx*0.5;
+      _sourceTerm.coeffRef(2*i+1) *= _dx*0.5;
     }
     else if( _src_choice == "line")
     {
-      _sourceTerm.coeffRef(i)=_d*i*_dx + _e;
+      xk  = i;
+      xk1 = i+1;
+      _sourceTerm.coeffRef(2*i)   = _d*( _dx*sqrt(3)/3.+(1+sqrt(3))*xk/2.+(1-sqrt(3))*xk1/2.) + _e;
+      _sourceTerm.coeffRef(2*i+1) = _d*(-_dx*sqrt(3)/3.+(1-sqrt(3))*xk/2.+(1+sqrt(3))*xk1/2.) + _e;
+
+      _sourceTerm.coeffRef(2*i)   *= _dx*0.5;
+      _sourceTerm.coeffRef(2*i+1) *= _dx*0.5;
+    }
+    else if( _src_choice == "creneau")
+    {
+      xk  = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
+      xk1 = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
+
+      if((xk>=_d)&&(xk<=_e))
+        _sourceTerm.coeffRef(2*i) = _f;
+
+      if((xk1>=_d)&&(xk1<=_e))
+        _sourceTerm.coeffRef(2*i+1) = _f;
+
+      _sourceTerm.coeffRef(2*i)   *= _dx*0.5;
+      _sourceTerm.coeffRef(2*i+1) *= _dx*0.5;
     }
     else
     {
-      _sourceTerm.coeffRef(i)=_d*i*_dx*i*_dx + _e*i*_dx + _f;
+      _sourceTerm.coeffRef(2*i)   = 0;
+      _sourceTerm.coeffRef(2*i+1) = 0;
     }
-
   }
 
   //Condition aux bords
   if(BC_left == "dirichlet")
   {
-    _sourceTerm.coeffRef(0) += -sigma*sqrt(3)*_ul/_dx;
-    _sourceTerm.coeffRef(1) += sigma*sqrt(3)*_ul/_dx;
+    _sourceTerm.coeffRef(0) += -_sigma.coeffRef(0)*sqrt(3)*_ul/_dx;
+    _sourceTerm.coeffRef(1) += _sigma.coeffRef(1)*sqrt(3)*_ul/_dx;
 
     _sourceTerm.coeffRef(0) += mu*(1.+sqrt(3))*_ul/2.;
     _sourceTerm.coeffRef(1) += mu*(1.-sqrt(3))*_ul/2.;
@@ -250,15 +287,14 @@ void SystemBuilder::Build_sourceTerm()
 
   if(BC_right == "dirichlet")
   {
-    _sourceTerm.coeffRef(_Asize-2) += sigma*sqrt(3)*_ur/_dx;
-    _sourceTerm.coeffRef(_Asize-1) += -sigma*sqrt(3)*_ur/_dx;
+    _sourceTerm.coeffRef(_Asize-2) += _sigma.coeffRef(_Asize-2)*sqrt(3)*_ur/_dx;
+    _sourceTerm.coeffRef(_Asize-1) += -_sigma.coeffRef(_Asize-1)*sqrt(3)*_ur/_dx;
 
     _sourceTerm.coeffRef(_Asize-2) += mu*(1-sqrt(3))*_ur/2.;
     _sourceTerm.coeffRef(_Asize-1) += mu*(1+sqrt(3))*_ur/2.;
   }
   else
   {
-
     _sourceTerm.coeffRef(_Asize-2) -= mu*(_ur*_ur);
     _sourceTerm.coeffRef(_Asize-1) -= mu*(_ur*_ur);
   }
