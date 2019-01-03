@@ -6,7 +6,7 @@ constant 1
 # constant value, creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct
-line 6 0
+constant 2
 # constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon]
 
 gamma0

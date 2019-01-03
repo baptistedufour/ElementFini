@@ -129,10 +129,10 @@ void SystemSolver::BuildSolEx()
       _solEx.coeffRef(2*i+1) = a*xk1*xk1*xk1 + b*xk1*xk1 + c*xk1 + d;
     }
   }
-  else if (_builder->Get_source_fct_choice() == "line")
+  else if (_builder->Get_source_fct_choice() == "constant")
   {
     a = _builder->Get_param_d();
-    b = (_ur-_ul)+b/(2.*sigma);
+    b = (_ur-_ul)+a/(2.*sigma);
     c = _ul;
     a = -a/(2.*sigma);
 
