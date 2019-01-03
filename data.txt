@@ -6,7 +6,7 @@ constant 1
 # constant value, creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct
-constant 0
+line 6 0
 # constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon]
 
 gamma0
@@ -30,6 +30,10 @@ cholesky
 # cholesky or LU
 
 norm_L2
+no
+# yes or no
+
+norm_H1
 no
 # yes or no
 

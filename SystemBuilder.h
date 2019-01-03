@@ -42,6 +42,12 @@ class SystemBuilder
     double Get_right_BC() const { return _ur;};
     double Get_left_BC() const { return _ul;};
 
+
+    double Get_param_d() const { return _d;}
+    double Get_param_e() const { return _e;}
+    double Get_param_f() const { return _f;}
+    double Get_sigma0();
+
     std::string Get_sigma_choice() const {return _sigma_choice;};
     std::string Get_source_fct_choice() const {return _src_choice;};
 

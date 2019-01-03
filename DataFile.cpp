@@ -8,9 +8,10 @@
 using namespace std;
 
 DataFile::DataFile(std::string file_name)
-: _file_name(file_name),  _if_Nmesh_choice(false), _if_sigma_choice(false),
+: _if_results(false), _if_gamma0_choice(false),
+_file_name(file_name),  _if_Nmesh_choice(false), _if_sigma_choice(false),
 _if_left_boundary_condition_choice(false),_if_right_boundary_condition_choice(false),
-_if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_results(false), _if_gamma0_choice(false)
+_if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_norm_H1_choice(false)
 {}
 
   void DataFile::ReadDataFile()
@@ -132,6 +133,11 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
         data_file >> _norm_L2_choice; _if_norm_L2_choice = true;
       }
 
+      if (file_line.find("norm_H1") != std::string::npos)
+      {
+        data_file >> _norm_H1_choice; _if_norm_H1_choice = true;
+      }
+
       if (file_line.find("results") != std::string::npos)
       {
         data_file >> _results; _if_results = true;
@@ -184,6 +190,12 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
     {
       cout << "-------------------------------------------------" << endl;
       cout << "Do not forget to say if you want the L2-norm of the solution in the data file." << endl;
+      abort();
+    }
+    if (!_if_norm_H1_choice)
+    {
+      cout << "-------------------------------------------------" << endl;
+      cout << "Do not forget to say if you want the H1-norm of the solution in the data file." << endl;
       abort();
     }
     if (!_if_results)

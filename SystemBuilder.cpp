@@ -242,11 +242,8 @@ void SystemBuilder::Build_sourceTerm()
     {
       xk  = i;
       xk1 = i+1;
-      _sourceTerm.coeffRef(2*i)   = _d*( _dx*sqrt(3)/3.+(1+sqrt(3))*xk/2.+(1-sqrt(3))*xk1/2.) + _e;
-      _sourceTerm.coeffRef(2*i+1) = _d*(-_dx*sqrt(3)/3.+(1-sqrt(3))*xk/2.+(1+sqrt(3))*xk1/2.) + _e;
-
-      _sourceTerm.coeffRef(2*i)   *= _dx*0.5;
-      _sourceTerm.coeffRef(2*i+1) *= _dx*0.5;
+      _sourceTerm.coeffRef(2*i)   = _d*_dx*_dx*((3-sqrt(3))/12.+i/2.) + _e*_dx*0.5;
+      _sourceTerm.coeffRef(2*i+1) = _d*_dx*_dx*((3+sqrt(3))/12.+i/2.) + _e*_dx*0.5;
     }
     else if( _src_choice == "creneau")
     {
@@ -254,13 +251,10 @@ void SystemBuilder::Build_sourceTerm()
       xk1 = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
 
       if((xk>=_d)&&(xk<=_e))
-        _sourceTerm.coeffRef(2*i) = _f;
+        _sourceTerm.coeffRef(2*i) = _f*_dx*0.5;
 
       if((xk1>=_d)&&(xk1<=_e))
-        _sourceTerm.coeffRef(2*i+1) = _f;
-
-      _sourceTerm.coeffRef(2*i)   *= _dx*0.5;
-      _sourceTerm.coeffRef(2*i+1) *= _dx*0.5;
+        _sourceTerm.coeffRef(2*i+1) = _f*_dx*0.5;
     }
     else
     {
@@ -278,12 +272,6 @@ void SystemBuilder::Build_sourceTerm()
     _sourceTerm.coeffRef(0) += mu*(1.+sqrt(3))*_ul/2.;
     _sourceTerm.coeffRef(1) += mu*(1.-sqrt(3))*_ul/2.;
   }
-  else
-  {
-
-    _sourceTerm.coeffRef(0) -= mu*(_ul*_ul);
-    _sourceTerm.coeffRef(1) -= mu*(_ul*_ul);
-  }
 
   if(BC_right == "dirichlet")
   {
@@ -293,12 +281,11 @@ void SystemBuilder::Build_sourceTerm()
     _sourceTerm.coeffRef(_Asize-2) += mu*(1-sqrt(3))*_ur/2.;
     _sourceTerm.coeffRef(_Asize-1) += mu*(1+sqrt(3))*_ur/2.;
   }
-  else
-  {
-    _sourceTerm.coeffRef(_Asize-2) -= mu*(_ur*_ur);
-    _sourceTerm.coeffRef(_Asize-1) -= mu*(_ur*_ur);
-  }
-  //cout << _sourceTerm << endl;
+}
+
+double SystemBuilder::Get_sigma0()
+{
+  return _sigma.coeffRef(0);
 }
 
 
