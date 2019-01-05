@@ -44,9 +44,9 @@ _sigma_choice(data_file->Get_sigma_choice())
     {
       xk  = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
       xk1 = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
-      xk12 = (xk1 - xk)/2.;
       if(_sigma_choice == "creneau")
       {
+        xk12 = (xk1 + xk)/2.;
         if ((xk12<=_b)&&(xk12>=_a))
         {
           _sigma.coeffRef(i) = _c;
@@ -67,6 +67,8 @@ _sigma_choice(data_file->Get_sigma_choice())
       }
     }
   }
+
+  cout << "sigma " << _sigma << endl;
 
   _matAm.resize(_Asize,_Asize);
   _matAm.setZero();

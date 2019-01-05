@@ -2,11 +2,11 @@ Nmesh
 100
 
 sigma
-constant 1
+creneau 0 0.5 2
 # constant value, creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct
-line 6 0
+constant 1
 # constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon],  sinus [f=pi**2*sin(pi*x)]
 
 gamma0
