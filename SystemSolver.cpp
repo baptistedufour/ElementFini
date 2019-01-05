@@ -175,6 +175,8 @@ void SystemSolver::ErrorL2_sin()
 {
   _errorL = 0;
   double Ck, alphk, alphk1, xk, xk1;
+  SparseVector<double> sigVec = _builder->Get_sigma();
+
 
   for(int i=0; i<_nb_pts+1;i++)
   {
@@ -185,9 +187,9 @@ void SystemSolver::ErrorL2_sin()
     Ck= (_sol.coeffRef(2*i+1) - _sol.coeffRef(2*i))/(alphk1 - alphk);
 
     _errorL += pow(Ck,2)/3. * (pow(xk1,3)-pow(xk,3));
-    _errorL += (_sol.coeffRef(2*i) - Ck*alphk)*( Ck*(pow(xk1,2)-pow(xk,2)) + 2./PI*(cos(PI*xk1)-cos(PI*xk)) );
-    _errorL += 2.*Ck/PI*( (xk1*cos(PI*xk1)-xk*cos(PI*xk)) - (sin(PI*xk1)-sin(PI*xk))/PI );
-    _errorL += 1./2. *(xk1-xk) - 1./(4.*PI) *(sin(2*PI*xk1)-sin(2*PI*xk));
+    _errorL += (_sol.coeffRef(2*i) - Ck*alphk)*( Ck*(pow(xk1,2)-pow(xk,2)) + 2./(PI*sigVec.coeffRef(i))*(cos(PI*xk1)-cos(PI*xk)) );
+    _errorL += 2.*Ck/(PI*sigVec.coeffRef(i))*( (xk1*cos(PI*xk1)-xk*cos(PI*xk)) - (sin(PI*xk1)-sin(PI*xk))/PI );
+    _errorL += (1./2. *(xk1-xk) - 1./(4.*PI) *(sin(2*PI*xk1)-sin(2*PI*xk)))/pow(sigVec.coeffRef(i),2);
     _errorL += pow(Ck*alphk - _sol.coeffRef(2*i),2)*(xk1-xk);
 
   }
