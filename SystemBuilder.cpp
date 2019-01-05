@@ -32,37 +32,28 @@ _sigma_choice(data_file->Get_sigma_choice())
     _c = data_file->Get_param_c();
   }
 
-  _sigma.resize(_Asize);
-  double xk, xk1;
+  _sigma.resize(_nb_pts+1);
+  double xk, xk1, xk12;
   for(int i = 0; i < _nb_pts+1; i++)
   {
     if(_sigma_choice == "constant")
     {
-      _sigma.coeffRef(2*i) = _a;
-      _sigma.coeffRef(2*i+1) = _a;
+      _sigma.coeffRef(i) = _a;
     }
     else
     {
       xk  = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
       xk1 = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
+      xk12 = (xk1 - xk)/2.;
       if(_sigma_choice == "creneau")
       {
-        if ((xk<=_b)&&(xk>=_a))
+        if ((xk12<=_b)&&(xk12>=_a))
         {
-          _sigma.coeffRef(2*i) = _c;
+          _sigma.coeffRef(i) = _c;
         }
         else
         {
-          _sigma.coeffRef(2*i) = 1.;
-        }
-
-        if ((xk1<=_b)&&(xk>=_a))
-        {
-          _sigma.coeffRef(2*i+1) = _c;
-        }
-        else
-        {
-          _sigma.coeffRef(2*i+1) = 1.;
+          _sigma.coeffRef(i) = 1.;
         }
       }
       else if(_sigma_choice == "line")
@@ -72,8 +63,7 @@ _sigma_choice(data_file->Get_sigma_choice())
       }
       else
       {
-        _sigma.coeffRef(2*i) = 1.;
-        _sigma.coeffRef(2*i+1) = 1.;
+        _sigma.coeffRef(i) = 1.;
       }
     }
   }
@@ -133,15 +123,15 @@ void SystemBuilder::Build_matA()
        _matAm.coeffRef(2*i+1,2*i+3) += 0.5;
 
 
-       _matAs.coeffRef(2*i,2*i-2) += -gamma_s;
-       _matAs.coeffRef(2*i,2*i-1) += alpha_s;
-       _matAs.coeffRef(2*i,2*i+2) += -gamma_s;
-       _matAs.coeffRef(2*i,2*i+3) += beta_s;
+       _matAs.coeffRef(2*i,2*i-2) += -alpha_s*_sigma.coeffRef(i-1)/2. - beta_s*_sigma.coeffRef(i)/2. ;//-gamma_s;
+       _matAs.coeffRef(2*i,2*i-1) +=  alpha_s*_sigma.coeffRef(i-1)/2. + alpha_s*_sigma.coeffRef(i)/2.;//alpha_s;
+       _matAs.coeffRef(2*i,2*i+2) += -beta_s*_sigma.coeffRef(i+1)/2.  - alpha_s*_sigma.coeffRef(i)/2.; //-gamma_s;
+       _matAs.coeffRef(2*i,2*i+3) +=  beta_s*_sigma.coeffRef(i+1)/2.  + beta_s*_sigma.coeffRef(i)/2. ;//beta_s;
 
-       _matAs.coeffRef(2*i+1,2*i-2) += beta_s;
-       _matAs.coeffRef(2*i+1,2*i-1) += -gamma_s;
-       _matAs.coeffRef(2*i+1,2*i+2) += alpha_s;
-       _matAs.coeffRef(2*i+1,2*i+3) += -gamma_s;
+       _matAs.coeffRef(2*i+1,2*i-2) += beta_s*_sigma.coeffRef(i-1)/2.  + beta_s*_sigma.coeffRef(i)/2. ;//beta_s;
+       _matAs.coeffRef(2*i+1,2*i-1) += -beta_s*_sigma.coeffRef(i-1)/2. - alpha_s*_sigma.coeffRef(i)/2.;//-gamma_s;
+       _matAs.coeffRef(2*i+1,2*i+2) += alpha_s*_sigma.coeffRef(i+1)/2. + alpha_s*_sigma.coeffRef(i)/2.;//alpha_s;
+       _matAs.coeffRef(2*i+1,2*i+3) += -alpha_s*_sigma.coeffRef(i+1)/2.- beta_s*_sigma.coeffRef(i)/2.;//-gamma_s;
      }
 
      else if (i==0)
@@ -157,15 +147,17 @@ void SystemBuilder::Build_matA()
        _matAm.coeffRef(2*i+1,2*i+3) += 0.5;
 
 
-       _matAs.coeffRef(2*i,2*i)   += -alpha_s;
-       _matAs.coeffRef(2*i,2*i+1) += gamma_s;
-       _matAs.coeffRef(2*i,2*i+2) += -gamma_s;
-       _matAs.coeffRef(2*i,2*i+3) += beta_s;
+       _matAs.coeffRef(2*i,2*i)   += -alpha_s*_sigma.coeffRef(i);
+       _matAs.coeffRef(2*i,2*i+1) += gamma_s*_sigma.coeffRef(i);
+       _matAs.coeffRef(2*i,2*i+2) += -beta_s*_sigma.coeffRef(i+1)/2.  - alpha_s*_sigma.coeffRef(i)/2.; //-gamma_s;
+       _matAs.coeffRef(2*i,2*i+3) +=  beta_s*_sigma.coeffRef(i+1)/2.  + beta_s*_sigma.coeffRef(i)/2. ;//beta_s;
 
-       _matAs.coeffRef(2*i+1,2*i)   += gamma_s;
-       _matAs.coeffRef(2*i+1,2*i+1) += -beta_s;
-       _matAs.coeffRef(2*i+1,2*i+2) += alpha_s;
-       _matAs.coeffRef(2*i+1,2*i+3) += -gamma_s;
+       _matAs.coeffRef(2*i+1,2*i)   += gamma_s*_sigma.coeffRef(i) ;//gamma_s;
+       _matAs.coeffRef(2*i+1,2*i+1) += -beta_s*_sigma.coeffRef(i);//-beta_s;
+       _matAs.coeffRef(2*i+1,2*i+2) += alpha_s*_sigma.coeffRef(i+1)/2. + alpha_s*_sigma.coeffRef(i)/2.;//alpha_s;
+       _matAs.coeffRef(2*i+1,2*i+3) += -alpha_s*_sigma.coeffRef(i+1)/2.- beta_s*_sigma.coeffRef(i)/2.;//-gamma_s;
+
+
      }
 
      else
@@ -181,27 +173,27 @@ void SystemBuilder::Build_matA()
        _matAm.coeffRef(2*i+1,2*i+1) += 2;
 
 
-       _matAs.coeffRef(2*i,2*i-2) += -gamma_s;
-       _matAs.coeffRef(2*i,2*i-1) += alpha_s;
-       _matAs.coeffRef(2*i,2*i)   += -beta_s;
-       _matAs.coeffRef(2*i,2*i+1) += gamma_s;
+       _matAs.coeffRef(2*i,2*i-2) += -alpha_s*_sigma.coeffRef(i-1)/2. - beta_s*_sigma.coeffRef(i)/2. ;//-gamma_s;
+       _matAs.coeffRef(2*i,2*i-1) +=  alpha_s*_sigma.coeffRef(i-1)/2. + alpha_s*_sigma.coeffRef(i)/2.;//alpha_s;
+       _matAs.coeffRef(2*i,2*i)   += -beta_s*_sigma.coeffRef(i);//-beta_s;
+       _matAs.coeffRef(2*i,2*i+1) += gamma_s*_sigma.coeffRef(i);//gamma_s;
 
-       _matAs.coeffRef(2*i+1,2*i-2) += beta_s;
-       _matAs.coeffRef(2*i+1,2*i-1) += -gamma_s;
-       _matAs.coeffRef(2*i+1,2*i)   += gamma_s;
-       _matAs.coeffRef(2*i+1,2*i+1) += -alpha_s;
+       _matAs.coeffRef(2*i+1,2*i-2) += beta_s*_sigma.coeffRef(i-1)/2.  + beta_s*_sigma.coeffRef(i)/2. ;//beta_s;
+       _matAs.coeffRef(2*i+1,2*i-1) += -beta_s*_sigma.coeffRef(i-1)/2. - alpha_s*_sigma.coeffRef(i)/2.;//-gamma_s;
+       _matAs.coeffRef(2*i+1,2*i)   += gamma_s*_sigma.coeffRef(i);//gamma_s;
+       _matAs.coeffRef(2*i+1,2*i+1) += -alpha_s*_sigma.coeffRef(i);//-alpha_s;
      }
   }
 
   _matAm = mu*_matAm;
   //_matAs = sigma*matA;
-  for(int i=0; i < _Asize; i++)
+  /*for(int i=0; i < _Asize; i++)
   {
     for(int j=0; j < _Asize; j++)
     {
       _matAs.coeffRef(i,j) = _matAs.coeffRef(i,j)*_sigma.coeffRef(i);
     }
-  }
+  }*/
   _matA = _matAm + _matAs;
 
   Matrix<double, Dynamic, Dynamic> Matrix;
@@ -274,7 +266,7 @@ void SystemBuilder::Build_sourceTerm()
   if(BC_left == "dirichlet")
   {
     _sourceTerm.coeffRef(0) += -_sigma.coeffRef(0)*sqrt(3)*_ul/_dx;
-    _sourceTerm.coeffRef(1) += _sigma.coeffRef(1)*sqrt(3)*_ul/_dx;
+    _sourceTerm.coeffRef(1) += _sigma.coeffRef(0)*sqrt(3)*_ul/_dx;
 
     _sourceTerm.coeffRef(0) += mu*(1.+sqrt(3))*_ul/2.;
     _sourceTerm.coeffRef(1) += mu*(1.-sqrt(3))*_ul/2.;
@@ -282,8 +274,8 @@ void SystemBuilder::Build_sourceTerm()
 
   if(BC_right == "dirichlet")
   {
-    _sourceTerm.coeffRef(_Asize-2) += _sigma.coeffRef(_Asize-2)*sqrt(3)*_ur/_dx;
-    _sourceTerm.coeffRef(_Asize-1) += -_sigma.coeffRef(_Asize-1)*sqrt(3)*_ur/_dx;
+    _sourceTerm.coeffRef(_Asize-2) += _sigma.coeffRef(_nb_pts)*sqrt(3)*_ur/_dx;
+    _sourceTerm.coeffRef(_Asize-1) += -_sigma.coeffRef(_nb_pts)*sqrt(3)*_ur/_dx;
 
     _sourceTerm.coeffRef(_Asize-2) += mu*(1-sqrt(3))*_ur/2.;
     _sourceTerm.coeffRef(_Asize-1) += mu*(1+sqrt(3))*_ur/2.;
@@ -293,6 +285,11 @@ void SystemBuilder::Build_sourceTerm()
 double SystemBuilder::Get_sigma0()
 {
   return _sigma.coeffRef(0);
+}
+
+SparseVector<double> SystemBuilder::Get_sigma()
+{
+  return _sigma;
 }
 
 

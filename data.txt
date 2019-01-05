@@ -2,7 +2,7 @@ Nmesh
 100
 
 sigma
-constant 1
+constant 2
 # constant value, creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct

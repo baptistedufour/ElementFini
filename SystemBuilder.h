@@ -50,6 +50,7 @@ class SystemBuilder
     double Get_param_e() const { return _e;}
     double Get_param_f() const { return _f;}
     double Get_sigma0();
+    Eigen::SparseVector<double> Get_sigma();
 
     std::string Get_sigma_choice() const {return _sigma_choice;};
     std::string Get_source_fct_choice() const {return _src_choice;};
