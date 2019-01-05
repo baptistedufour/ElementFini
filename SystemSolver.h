@@ -15,9 +15,10 @@ class SystemSolver {
     enum {constant,line,curve};
 
     Eigen::SparseVector<double>  _sol;
-    Eigen::VectorXd  _sol2;
+    Eigen::SparseVector<double>  _solEx;
 
-    double _nb_pts, _ur, _ul;
+    double _nb_pts, _ur, _ul, _dx;
+    double _errorL, _errorH;
 
     Eigen::SparseLU<Eigen::SparseMatrix<double, Eigen::ColMajor>, Eigen::COLAMDOrdering<int> > _solverMethod;
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > _solverMethod2;
@@ -26,14 +27,15 @@ class SystemSolver {
     SystemSolver(SystemBuilder* builder);
 
     void BuildSol();
+    void BuildSolEx();
     void SaveSol();
 
-    Eigen::VectorXd & Get_Sol() {return _sol2;};
+    Eigen::SparseVector<double> & Get_Sol() {return _sol;};
+    Eigen::SparseVector<double> & Get_ExactSol() {return _solEx;};
 
-    const Eigen::VectorXd ExactSolution() const;
-    double Error(Eigen::SparseVector<double> sol);
-
-
+    void ErrorLinf();
+    void ErrorL2();
+    void ErrorH1();
 };
 
 #define _SYSTEMSOLVER_H

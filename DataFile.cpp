@@ -8,9 +8,10 @@
 using namespace std;
 
 DataFile::DataFile(std::string file_name)
-: _file_name(file_name),  _if_Nmesh_choice(false), _if_sigma_choice(false),
+: _if_results(false), _if_gamma0_choice(false),
+_file_name(file_name),  _if_Nmesh_choice(false), _if_sigma_choice(false),
 _if_left_boundary_condition_choice(false),_if_right_boundary_condition_choice(false),
-_if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_results(false), _if_gamma0_choice(false)
+_if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_norm_H1_choice(false)
 {}
 
   void DataFile::ReadDataFile()
@@ -54,13 +55,13 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
         {
           data_file >> _a >> _b;
         }
-        else if (_sigma_choice == "curve")
+        else if (_sigma_choice == "creneau")
         {
           data_file >> _a >> _b >> _c;
         }
         else
         {
-          cout << "Only constant, line and curve sigma are implemented." << endl;
+          cout << "Only constant, line and creneau sigma are implemented." << endl;
           abort();
         }
       }
@@ -68,21 +69,21 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
       if (file_line.find("source_fct") != std::string::npos)
       {
         data_file >> _source_fct_choice; _if_source_fct_choice = true;
-        if (_sigma_choice == "constant")
+        if (_source_fct_choice == "constant")
         {
           data_file >> _d;
         }
-        else if ((_sigma_choice == "line"))
+        else if (_source_fct_choice == "line")
         {
           data_file >> _d >> _e;
         }
-        else if (_sigma_choice == "curve")
+        else if (_source_fct_choice == "creneau")
         {
           data_file >> _d >> _e >> _f;
         }
         else
         {
-          cout << "Only constant, line and curve source function are implemented." << endl;
+          cout << "Only constant, line and creneau source function are implemented." << endl;
           abort();
         }
       }
@@ -130,6 +131,11 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
       if (file_line.find("norm_L2") != std::string::npos)
       {
         data_file >> _norm_L2_choice; _if_norm_L2_choice = true;
+      }
+
+      if (file_line.find("norm_H1") != std::string::npos)
+      {
+        data_file >> _norm_H1_choice; _if_norm_H1_choice = true;
       }
 
       if (file_line.find("results") != std::string::npos)
@@ -184,6 +190,12 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_resu
     {
       cout << "-------------------------------------------------" << endl;
       cout << "Do not forget to say if you want the L2-norm of the solution in the data file." << endl;
+      abort();
+    }
+    if (!_if_norm_H1_choice)
+    {
+      cout << "-------------------------------------------------" << endl;
+      cout << "Do not forget to say if you want the H1-norm of the solution in the data file." << endl;
       abort();
     }
     if (!_if_results)

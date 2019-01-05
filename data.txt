@@ -1,16 +1,16 @@
 Nmesh
-4
+100
 
 sigma
 constant 1
-# constant value, line a b [f(x)=ax+b], curve a b c [f(x)=ax^2+bx+c]
+# constant value, creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct
-constant 0
-# constant value, line d e [f(x)=dx+e], curve e f g [f(x)=dx^2+ex+f]
+constant 2
+# constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon]
 
 gamma0
-0.2
+10
 #Choix Gamma 0 pour definition du mu
 
 left_boundary_condition
@@ -30,6 +30,10 @@ cholesky
 # cholesky or LU
 
 norm_L2
+no
+# yes or no
+
+norm_H1
 no
 # yes or no
 

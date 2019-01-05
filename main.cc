@@ -35,7 +35,7 @@ int main(int argc, char** argv)
   double t = chrono::duration_cast<chrono::milliseconds>(finish-start).count();
   // ---------------------------------------------------------------------------
 
-  // -------------------- Resolution du système linéaire  --------------------
+  // --------------------- Resolution du système linéaire  ---------------------
   SystemSolver* solver = NULL;
   solver = new SystemSolver(builder);
 
@@ -46,24 +46,23 @@ int main(int argc, char** argv)
   t = chrono::duration_cast<chrono::milliseconds>(finish-start).count();
 
   cout << "Time to compute : "<< t*0.001 << " seconds" << endl;
-
-  //------------------- Si on connait la solution exacte -----------------------
-  /*
-  if ((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_sigma_choice() == "constant"))
-  {
-    VectorXd exact_sol = solver->ExactSolution();
-    VectorXd approx_sol = solver->Get_Sol();
-    double error = ((approx_sol-exact_sol).array().abs()).maxCoeff();
-    cout << "Erreur = " << error << endl;
-    cout << "-------------------------------------------------" << endl;
-    ofstream error_file;
-    const string error_file_name = data_file->Get_results()+"/error.txt";
-    error_file.open(error_file_name, ios::out);
-    error_file << error << endl;
-    error_file.close();
-  }*/
   // ---------------------------------------------------------------------------
 
+  //------------------- Si on connait la solution exacte -----------------------
+
+  if (((data_file->Get_source_fct_choice() == "constant")||(data_file->Get_source_fct_choice() == "line"))
+    &&(data_file->Get_sigma_choice() == "constant"))
+  {
+    cout << "Error : " << endl;
+    solver->ErrorLinf();
+    if((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_norm_L2_choice() == "yes"))
+      solver->ErrorL2();
+    if((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_norm_H1_choice() == "yes"))
+      solver->ErrorH1();
+  }
+  // ---------------------------------------------------------------------------
+
+  cout << "-------------------------------------------------" << endl;
   delete solver;
   delete builder;
   delete data_file;

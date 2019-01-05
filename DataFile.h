@@ -20,6 +20,7 @@ private:
   std::string _right_boundary_condition_choice;
   std::string _solver_choice;
   std::string _norm_L2_choice;
+  std::string _norm_H1_choice;
   std::string _results;
 
   bool _if_Nmesh_choice;
@@ -30,6 +31,7 @@ private:
   bool _if_Pk_choice;
   bool _if_solver_choice;;
   bool _if_norm_L2_choice;
+  bool _if_norm_H1_choice;
   bool _if_results;
   bool _if_gamma0_choice;
 
@@ -44,6 +46,7 @@ public: // Méthodes et opérateurs de la classe
   std::string Get_left_BC_choice() const {return _left_boundary_condition_choice;};
   std::string Get_solver_choice() const {return _solver_choice;};
   std::string Get_norm_L2_choice() const {return _norm_L2_choice;};
+  std::string Get_norm_H1_choice() const {return _norm_H1_choice;};
   std::string Get_results() const {return _results;};
 
   double Get_Nmesh() const {return _Nmesh_choice;};
