@@ -211,9 +211,9 @@ void SystemBuilder::Build_matA()
 
   SparseMatrix<double, ColMajor> A(_matA);
 
-  cout << "CG                 " << endl;
-  _solverMethod3.analyzePattern(A);
-  _solverMethod3.factorize(A);
+  cout << "Factorisation LU                 " << endl;
+  _solverMethod.analyzePattern(A);
+  _solverMethod.factorize(A);
 }
 
 void SystemBuilder::Build_sourceTerm()

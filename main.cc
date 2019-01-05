@@ -55,8 +55,10 @@ int main(int argc, char** argv)
   {
     cout << "Error : " << endl;
     solver->ErrorLinf();
-    if(((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_norm_L2_choice() == "yes"))||((data_file->Get_source_fct_choice() == "sinus")&&(data_file->Get_norm_L2_choice() == "yes")))
+  if(((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_norm_L2_choice() == "yes"))||((data_file->Get_source_fct_choice() == "line")&&(data_file->Get_norm_L2_choice() == "yes")))
       solver->ErrorL2();
+  else if ((data_file->Get_norm_L2_choice() == "yes")||(data_file->Get_source_fct_choice() == "sinus"))
+      solver->ErrorL2_sin();
     if((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_norm_H1_choice() == "yes"))
       solver->ErrorH1();
   }

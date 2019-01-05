@@ -6,11 +6,11 @@ constant 1
 # constant value, creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct
-sinus
-# constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon]
+line 6 0
+# constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon],  sinus [f=pi**2*sin(pi*x)]
 
 gamma0
-1.01
+100
 #Choix Gamma 0 pour definition du mu
 
 left_boundary_condition
@@ -18,7 +18,7 @@ dirichlet 0
 # neumann d(u_g)/dn, dirichlet u_g
 
 right_boundary_condition
-dirichlet 0
+dirichlet 1
 # neumann d(u_g)/dn, dirichlet u_g
 
 Pk_element
@@ -26,8 +26,8 @@ Pk_element
 # 1 (P_1) or (P_2)
 
 solver
-cholesky
-# cholesky or LU
+LU
+# cholesky or LU or CG
 
 norm_L2
 yes

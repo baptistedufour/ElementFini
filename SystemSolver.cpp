@@ -171,7 +171,7 @@ void SystemSolver::ErrorLinf()
   cout << " -- Norme Linf : " << error << endl;
 }
 
-void SystemSolver::ErrorL2()
+void SystemSolver::ErrorL2_sin()
 {
   _errorL = 0;
   double Ck, alphk, alphk1, xk, xk1;
@@ -191,7 +191,58 @@ void SystemSolver::ErrorL2()
     _errorL += pow(Ck*alphk - _sol.coeffRef(2*i),2)*(xk1-xk);
 
   }
-  cout << " -- Norme L2   : " << sqrt(_errorL) << endl;
+  cout << " -- Norme L2   : " << _errorL << endl;
+}
+
+
+void SystemSolver::ErrorL2()
+{
+  _errorL = 0;
+  double Ck, alphk, alphk1, xk, xk1;
+  double a, b, c, d;
+  double sigma = _builder->Get_sigma0();
+  if(_builder->Get_source_fct_choice() == "line")
+  {
+    a = _builder->Get_param_d();
+    b = _builder->Get_param_e();
+    c = (_ur-_ul)+a/(6.*sigma)+b/(2.*sigma);
+    d = _ul;
+    a = -a/(6.*sigma);
+    b = -b/(2.*sigma);
+    //cout << " -- poly  line: " << a << "   "<< b << "   "<< c << "   "<< d << "   "  << endl;
+
+  }
+  else if (_builder->Get_source_fct_choice() == "constant")
+  {
+    a = _builder->Get_param_d();
+    b = -a/(2.*sigma);
+    c = (_ur-_ul)+a/(2.*sigma);
+    d = _ul;
+    a = 0.;
+    //cout << " -- poly  cst: " << a << "   "<< b << "   "<< c << "   "<< d << "   "  << endl;
+
+  }
+  for(int i=0; i<_nb_pts+1;i++)
+  {
+    xk     =  i*_dx;
+    xk1    =  (i+1)*_dx;
+    alphk  =  _dx/2.*(1.-1./sqrt(3)) + xk;
+    alphk1 =  _dx/2.*(1.+1./sqrt(3)) + xk;
+    Ck= (_sol.coeffRef(2*i+1) - _sol.coeffRef(2*i))/(alphk1 - alphk);
+
+
+
+    _errorL += ( a*a )                                                                                                           *(pow(xk1,7)-pow(xk,7))/7.;
+    _errorL += ( 2.*a*b )                                                                                                        *(pow(xk1,6)-pow(xk,6))/6.;
+    _errorL += ( b*b + 2.*a*c - 2.*Ck*a )                                                                                        *(pow(xk1,5)-pow(xk,5))/5.;
+    _errorL += 2.*(a*d + b*c - Ck*b + (Ck*alphk-_sol.coeffRef(2*i))*a )                                                          *(pow(xk1,4)-pow(xk,4))/4.;
+    _errorL += (c*c + 2.*b*d - 2.*Ck*c + Ck*Ck + 2.*(Ck*alphk-_sol.coeffRef(2*i))*b )                                            *(pow(xk1,3)-pow(xk,3))/3.;
+    _errorL += 2.*( c*d - Ck*d + Ck*_sol.coeffRef(2*i) - Ck*Ck*alphk + (Ck*alphk-_sol.coeffRef(2*i))*c )                         *(pow(xk1,2)-pow(xk,2))/2.;
+    _errorL += ( d*d + Ck*Ck*alphk*alphk - 2.*Ck*_sol.coeffRef(2*i)*alphk + _sol.coeffRef(2*i)*_sol.coeffRef(2*i) + 2.*(Ck*alphk-_sol.coeffRef(2*i))*d)*_dx;
+
+
+  }
+  cout << " -- Norme L2   : " << sqrt(abs(_errorL)) << endl;
 }
 
 void SystemSolver::ErrorH1()

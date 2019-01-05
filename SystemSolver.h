@@ -24,6 +24,8 @@ class SystemSolver {
 
     Eigen::SparseLU<Eigen::SparseMatrix<double, Eigen::ColMajor>, Eigen::COLAMDOrdering<int> > _solverMethod;
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > _solverMethod2;
+    Eigen::ConjugateGradient< Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper > _solverMethod3;
+
 
 	public: // Méthodes et opérateurs de la classe
     SystemSolver(SystemBuilder* builder);
@@ -36,6 +38,7 @@ class SystemSolver {
     Eigen::SparseVector<double> & Get_ExactSol() {return _solEx;};
 
     void ErrorLinf();
+    void ErrorL2_sin();
     void ErrorL2();
     void ErrorH1();
 };

@@ -125,9 +125,9 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_norm
       if (file_line.find("solver") != std::string::npos)
       {
         data_file >> _solver_choice; _if_solver_choice = true;
-        if ((_solver_choice != "cholesky") && (_solver_choice != "LU"))
+        if ((_solver_choice != "cholesky") && (_solver_choice != "LU") && (_solver_choice != "CG"))
         {
-          cout << "Only Cholesky and LU solver are implemented." << endl;
+          cout << "Only Cholesky, CG and LU solver are implemented." << endl;
           abort();
         }
       }
