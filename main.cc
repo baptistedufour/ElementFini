@@ -50,8 +50,7 @@ int main(int argc, char** argv)
 
   //------------------- Si on connait la solution exacte -----------------------
 
-  if (((data_file->Get_source_fct_choice() == "constant")||(data_file->Get_source_fct_choice() == "line") || (data_file->Get_source_fct_choice() == "sinus"))
-    &&(data_file->Get_sigma_choice() == "constant"))
+  if ((data_file->Get_source_fct_choice() == "constant")||(data_file->Get_source_fct_choice() == "line") || (data_file->Get_source_fct_choice() == "sinus"))
   {
     cout << "Error : " << endl;
     solver->ErrorLinf();
