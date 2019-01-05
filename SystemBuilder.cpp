@@ -211,9 +211,9 @@ void SystemBuilder::Build_matA()
 
   SparseMatrix<double, ColMajor> A(_matA);
 
-  cout << "Factorisation LU                 " << endl;
-  _solverMethod.analyzePattern(A);
-  _solverMethod.factorize(A);
+  cout << "CG                 " << endl;
+  _solverMethod3.analyzePattern(A);
+  _solverMethod3.factorize(A);
 }
 
 void SystemBuilder::Build_sourceTerm()
@@ -255,6 +255,13 @@ void SystemBuilder::Build_sourceTerm()
 
       if((xk1>=_d)&&(xk1<=_e))
         _sourceTerm.coeffRef(2*i+1) = _f*_dx*0.5;
+    }
+    else if(_src_choice == "sinus")
+    {
+      xk  = i*_dx;
+      xk1 = (i+1)*_dx ;
+      _sourceTerm.coeffRef(2*i)   = sqrt(3)/_dx * (sin(PI*xk) - sin(PI*xk1)) - PI * (1-sqrt(3))/2 * cos (PI * xk1) + PI * (1+sqrt(3))/2 * cos(PI*xk);
+      _sourceTerm.coeffRef(2*i+1) = -sqrt(3)/_dx * (sin(PI*xk) - sin(PI*xk1)) - PI * (1+sqrt(3))/2 * cos (PI * xk1) + PI * (1-sqrt(3))/2 * cos(PI*xk);
     }
     else
     {

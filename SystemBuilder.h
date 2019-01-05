@@ -7,6 +7,8 @@
 #include <fstream>
 #include "DataFile.h"
 
+#define PI 3.141592653
+
 class SystemBuilder
 {
   private:
@@ -30,6 +32,7 @@ class SystemBuilder
 
     Eigen::SparseLU<Eigen::SparseMatrix<double, Eigen::ColMajor>, Eigen::COLAMDOrdering<int> > _solverMethod;
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > _solverMethod2;
+    Eigen::ConjugateGradient< Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper > _solverMethod3;
 
   public:
     SystemBuilder(DataFile* data_file);

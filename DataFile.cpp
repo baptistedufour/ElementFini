@@ -81,9 +81,13 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_norm
         {
           data_file >> _d >> _e >> _f;
         }
+        else if (_source_fct_choice == "sinus")
+        {
+          //data_file >> _d >> _e >> _f;
+        }
         else
         {
-          cout << "Only constant, line and creneau source function are implemented." << endl;
+          cout << "Only constant, line, sinus and creneau source function are implemented." << endl;
           abort();
         }
       }

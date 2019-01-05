@@ -54,7 +54,7 @@ void SystemSolver::SaveSol()
   string name_file2 = "Resultats/solbis.dat";
 
   bool checkSolEx = false;
-  if (((_builder->Get_source_fct_choice() == "constant")||(_builder->Get_source_fct_choice() == "line"))
+  if (((_builder->Get_source_fct_choice() == "constant")||(_builder->Get_source_fct_choice() == "line")||(_builder->Get_source_fct_choice() == "sinus"))
     &&(_builder->Get_sigma_choice() == "constant"))
   {
     checkSolEx = true;
@@ -145,6 +145,18 @@ void SystemSolver::BuildSolEx()
       _solEx.coeffRef(2*i+1) = a*xk1*xk1 + b*xk1 + c;
     }
   }
+  else if (_builder->Get_source_fct_choice() == "sinus")
+  {
+    for(int i = 0; i < _nb_pts+1; i++)
+    {
+      xk  = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
+      xk1 = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
+
+      _solEx.coeffRef(2*i)   = sin(PI * xk);
+      _solEx.coeffRef(2*i+1) = sin(PI * xk1);
+    }
+
+  }
 }
 
 void SystemSolver::ErrorLinf()
@@ -162,11 +174,24 @@ void SystemSolver::ErrorLinf()
 void SystemSolver::ErrorL2()
 {
   _errorL = 0;
+  double Ck, alphk, alphk1, xk, xk1;
+
   for(int i=0; i<_nb_pts+1;i++)
   {
-    _errorL += _errorL;
+    xk     =  i*_dx;
+    xk1    =  (i+1)*_dx;
+    alphk  =  _dx/2.*(1.-1./sqrt(3)) + xk;
+    alphk1 =  _dx/2.*(1.+1./sqrt(3)) + xk;
+    Ck= (_sol.coeffRef(2*i+1) - _sol.coeffRef(2*i))/(alphk1 - alphk);
+
+    _errorL += pow(Ck,2)/3. * (pow(xk1,3)-pow(xk,3));
+    _errorL += (_sol.coeffRef(2*i) - Ck*alphk)*( Ck*(pow(xk1,2)-pow(xk,2)) + 2./PI*(cos(PI*xk1)-cos(PI*xk)) );
+    _errorL += 2.*Ck/PI*( (xk1*cos(PI*xk1)-xk*cos(PI*xk)) - (sin(PI*xk1)-sin(PI*xk))/PI );
+    _errorL += 1./2. *(xk1-xk) - 1./(4.*PI) *(sin(2*PI*xk1)-sin(2*PI*xk));
+    _errorL += pow(Ck*alphk - _sol.coeffRef(2*i),2)*(xk1-xk);
+
   }
-  cout << " -- Norme L2   : indisponible" << endl;
+  cout << " -- Norme L2   : " << sqrt(_errorL) << endl;
 }
 
 void SystemSolver::ErrorH1()

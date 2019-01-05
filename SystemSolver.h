@@ -7,6 +7,8 @@
 #include <fstream>
 #include "SystemBuilder.h"
 
+#define PI 3.141592653
+
 class SystemSolver {
   private:
     SystemBuilder* _builder;
