@@ -51,10 +51,6 @@ _if_Pk_choice(false),_if_solver_choice(false),_if_norm_L2_choice(false),_if_norm
         {
           data_file >> _a;
         }
-        else if ((_sigma_choice == "line"))
-        {
-          data_file >> _a >> _b;
-        }
         else if (_sigma_choice == "creneau")
         {
           data_file >> _a >> _b >> _c;

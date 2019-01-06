@@ -30,10 +30,6 @@ class SystemBuilder
     std::string _src_choice;
     std::string _sigma_choice;
 
-    Eigen::SparseLU<Eigen::SparseMatrix<double, Eigen::ColMajor>, Eigen::COLAMDOrdering<int> > _solverMethod;
-    Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > _solverMethod2;
-    Eigen::ConjugateGradient< Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper > _solverMethod3;
-
   public:
     SystemBuilder(DataFile* data_file);
     void Build_matA();
@@ -50,7 +46,7 @@ class SystemBuilder
     double Get_param_e() const { return _e;}
     double Get_param_f() const { return _f;}
     double Get_sigma0();
-    Eigen::SparseVector<double> Get_sigma();
+    Eigen::SparseVector<double> Get_sigma() const { return _sigma;};
 
     std::string Get_sigma_choice() const {return _sigma_choice;};
     std::string Get_source_fct_choice() const {return _src_choice;};

@@ -16,6 +16,7 @@ class SystemSolver {
     std::string _sigma_choice;
     enum {constant,line,curve};
 
+    Eigen::SparseVector<double> _sigma;
     Eigen::SparseVector<double>  _sol;
     Eigen::SparseVector<double>  _solEx;
 
@@ -38,9 +39,10 @@ class SystemSolver {
     Eigen::SparseVector<double> & Get_ExactSol() {return _solEx;};
 
     void ErrorLinf();
+    void ErrorL2_poly();
     void ErrorL2_sin();
-    void ErrorL2();
-    void ErrorH1();
+    void ErrorH1_poly();
+    void ErrorH1_sin();
 };
 
 #define _SYSTEMSOLVER_H

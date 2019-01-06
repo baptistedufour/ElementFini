@@ -12,7 +12,8 @@ using namespace Eigen;
 SystemSolver::SystemSolver(SystemBuilder* builder) :
 _source_fct_choice(builder->Get_source_fct_choice()),
 _ur(builder->Get_right_BC()),_ul(builder->Get_left_BC()),
-_sigma_choice(builder->Get_sigma_choice())
+_sigma_choice(builder->Get_sigma_choice()),
+_sigma(builder->Get_sigma())
 {
   _builder = builder;
   _nb_pts = builder->Get_nb_pts();
@@ -54,8 +55,7 @@ void SystemSolver::SaveSol()
   string name_file2 = "Resultats/solbis.dat";
 
   bool checkSolEx = false;
-  if (((_builder->Get_source_fct_choice() == "constant")||(_builder->Get_source_fct_choice() == "line")||(_builder->Get_source_fct_choice() == "sinus"))
-    &&(_builder->Get_sigma_choice() == "constant"))
+  if ((_builder->Get_source_fct_choice() != "creneau")&&(_builder->Get_sigma_choice() == "constant"))
   {
     checkSolEx = true;
     BuildSolEx();
@@ -74,34 +74,34 @@ void SystemSolver::SaveSol()
 
   solution << 0 << " " << _ul;
   if (checkSolEx) solution << " " << _ul;
-  solution << endl;
+  solution << " " << _sigma.coeffRef(0) <<endl;
   solution2 << 0 << " " << _ul;
   if (checkSolEx) solution2 << " " << _ul;
-  solution2 << endl;
+  solution2 << " " << _sigma.coeffRef(0) <<endl;
   for(int i=0; i<_nb_pts+1;i++)
   {
       solution << i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i);
       if (checkSolEx) solution << " " << _solEx.coeffRef(2*i);
-      solution << endl;
+      solution << " " << _sigma.coeffRef(i) << endl;
       solution << i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3)) << " " << _sol.coeffRef(2*i+1);
       if (checkSolEx) solution << " " << _solEx.coeffRef(2*i+1);
-      solution << endl;
+      solution << " " << _sigma.coeffRef(i) << endl;
 
-      solution2 << i*_dx + 1e-6 << " " << alpha*_sol.coeffRef(2*i) + beta*_sol.coeffRef(2*i+1);
+      solution2 << i*_dx << " " << alpha*_sol.coeffRef(2*i) + beta*_sol.coeffRef(2*i+1);
       if (checkSolEx) solution2 << " " << alpha*_solEx.coeffRef(2*i) + beta*_solEx.coeffRef(2*i+1);
-      solution2 << endl;
-      solution2 << (i+1)*_dx - 1e-6 << " " << beta*_sol.coeffRef(2*i) + alpha*_sol.coeffRef(2*i+1);
+      solution2 << " " << _sigma.coeffRef(i) << endl;
+      solution2 << (i+1)*_dx << " " << beta*_sol.coeffRef(2*i) + alpha*_sol.coeffRef(2*i+1);
       if (checkSolEx) solution2 << " " << beta*_solEx.coeffRef(2*i) + alpha*_solEx.coeffRef(2*i+1);
-      solution2 << endl;
+      solution2 << " " << _sigma.coeffRef(i) << endl;
   }
   solution2 << 1 << " " << _ur;
   if (checkSolEx) solution2 << " " << _ur;
-  solution2 << endl;
+  solution2 << " " << _sigma.coeffRef(_nb_pts) << endl;
   solution2.close();
 
   solution << 1 << " " << _ur;
   if (checkSolEx) solution << " " << _ur;
-  solution << endl;
+  solution << " " << _sigma.coeffRef(_nb_pts) <<endl;
 	solution.close();
   cout << "-------------------------------------------------" << endl;
 }
@@ -152,8 +152,8 @@ void SystemSolver::BuildSolEx()
       xk  = i*_dx + _dx*(sqrt(3)-1)/(2*sqrt(3));
       xk1 = i*_dx + _dx*(sqrt(3)+1)/(2*sqrt(3));
 
-      _solEx.coeffRef(2*i)   = sin(PI * xk);
-      _solEx.coeffRef(2*i+1) = sin(PI * xk1);
+      _solEx.coeffRef(2*i)   = sin(PI * xk)/sigma;
+      _solEx.coeffRef(2*i+1) = sin(PI * xk1)/sigma;
     }
 
   }
@@ -168,7 +168,7 @@ void SystemSolver::ErrorLinf()
 
   error = ((exact_sol-approx_sol).array().abs()).maxCoeff();
 
-  cout << " -- Norme Linf : " << error << endl;
+  cout << " -- Err relative : " << error << endl;//<< "  |  " <<  error/((exact_sol).array().abs()).maxCoeff() << endl;
 }
 
 void SystemSolver::ErrorL2_sin()
@@ -176,7 +176,7 @@ void SystemSolver::ErrorL2_sin()
   _errorL = 0;
   double Ck, alphk, alphk1, xk, xk1;
   SparseVector<double> sigVec = _builder->Get_sigma();
-
+  double err = 0;
 
   for(int i=0; i<_nb_pts+1;i++)
   {
@@ -192,14 +192,19 @@ void SystemSolver::ErrorL2_sin()
     _errorL += (1./2. *(xk1-xk) - 1./(4.*PI) *(sin(2*PI*xk1)-sin(2*PI*xk)))/pow(sigVec.coeffRef(i),2);
     _errorL += pow(Ck*alphk - _sol.coeffRef(2*i),2)*(xk1-xk);
 
+    Ck = 0;
+
+    err += pow(Ck,2)/3. * (pow(xk1,3)-pow(xk,3));
+    err += (1./2. *(xk1-xk) - 1./(4.*PI) *(sin(2*PI*xk1)-sin(2*PI*xk)))/pow(sigVec.coeffRef(i),2);
   }
-  cout << " -- Norme L2   : " << _errorL << endl;
+  cout << " -- Norme L2     : " << sqrt(_errorL) << endl;// << "  |  " << sqrt(_errorL)/sqrt(err)  << endl;
 }
 
 
-void SystemSolver::ErrorL2()
+void SystemSolver::ErrorL2_poly()
 {
   _errorL = 0;
+  double err = 0;
   double Ck, alphk, alphk1, xk, xk1;
   double a, b, c, d;
   double sigma = _builder->Get_sigma0();
@@ -242,14 +247,29 @@ void SystemSolver::ErrorL2()
     _errorL += 2.*( c*d - Ck*d + Ck*_sol.coeffRef(2*i) - Ck*Ck*alphk + (Ck*alphk-_sol.coeffRef(2*i))*c )                         *(pow(xk1,2)-pow(xk,2))/2.;
     _errorL += ( d*d + Ck*Ck*alphk*alphk - 2.*Ck*_sol.coeffRef(2*i)*alphk + _sol.coeffRef(2*i)*_sol.coeffRef(2*i) + 2.*(Ck*alphk-_sol.coeffRef(2*i))*d)*_dx;
 
+    Ck = 0;
+
+    err += ( a*a )                                                               *(pow(xk1,7)-pow(xk,7))/7.;
+    err += ( 2.*a*b )                                                            *(pow(xk1,6)-pow(xk,6))/6.;
+    err += ( b*b + 2.*a*c - 2.*Ck*a )                                            *(pow(xk1,5)-pow(xk,5))/5.;
+    err += 2.*(a*d + b*c - Ck*b )                                                *(pow(xk1,4)-pow(xk,4))/4.;
+    err += (c*c + 2.*b*d - 2.*Ck*c + Ck*Ck )                                     *(pow(xk1,3)-pow(xk,3))/3.;
+    err += 2.*( c*d - Ck*d + Ck*_sol.coeffRef(2*i) - Ck*Ck*alphk )               *(pow(xk1,2)-pow(xk,2))/2.;
+    err += ( d*d + Ck*Ck*alphk*alphk - 2.*Ck*_sol.coeffRef(2*i)*alphk )*_dx;
+
 
   }
-  cout << " -- Norme L2   : " << sqrt(abs(_errorL)) << endl;
+  cout << " -- Norme L2     : " << sqrt(_errorL) << endl;// << "  |  " << sqrt(_errorL)/sqrt(err) << endl;
 }
 
-void SystemSolver::ErrorH1()
+void SystemSolver::ErrorH1_sin()
 {
-  cout << " -- Norme H1   : indisponible" << endl;
+  cout << " -- Norme H1     : indisponible" << endl;
+}
+
+void SystemSolver::ErrorH1_poly()
+{
+  cout << " -- Norme H1     : indisponible" << endl;
 }
 
 #define _SYSTEMSOLVER_CPP

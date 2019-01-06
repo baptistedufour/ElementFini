@@ -50,16 +50,26 @@ int main(int argc, char** argv)
 
   //------------------- Si on connait la solution exacte -----------------------
 
-  if ((data_file->Get_source_fct_choice() == "constant")||(data_file->Get_source_fct_choice() == "line") || (data_file->Get_source_fct_choice() == "sinus"))
+  if ((data_file->Get_source_fct_choice() != "creneau")&&(data_file->Get_sigma_choice() != "creneau"))
   {
     cout << "Error : " << endl;
     solver->ErrorLinf();
-  if(((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_norm_L2_choice() == "yes"))||((data_file->Get_source_fct_choice() == "line")&&(data_file->Get_norm_L2_choice() == "yes")))
-      solver->ErrorL2();
-  else if ((data_file->Get_norm_L2_choice() == "yes")||(data_file->Get_source_fct_choice() == "sinus"))
-      solver->ErrorL2_sin();
-    if((data_file->Get_source_fct_choice() == "constant")&&(data_file->Get_norm_H1_choice() == "yes"))
-      solver->ErrorH1();
+
+    if((data_file->Get_norm_L2_choice() == "yes"))
+    {
+      if((data_file->Get_source_fct_choice() == "constant")||(data_file->Get_source_fct_choice() == "line"))
+        solver->ErrorL2_poly();
+      if (data_file->Get_source_fct_choice() == "sinus")
+        solver->ErrorL2_sin();
+    }
+
+    if(data_file->Get_norm_H1_choice() == "yes")
+    {
+      if((data_file->Get_source_fct_choice() == "constant")||(data_file->Get_source_fct_choice() == "line"))
+        solver->ErrorH1_poly();
+      if (data_file->Get_source_fct_choice() == "sinus")
+        solver->ErrorH1_sin();
+    }
   }
   // ---------------------------------------------------------------------------
 

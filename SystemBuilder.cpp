@@ -22,11 +22,7 @@ _sigma_choice(data_file->Get_sigma_choice())
   _Asize = 2*(_nb_pts+1);
 
   //sigma
-  if(_sigma_choice == "line")
-  {
-    _b = data_file->Get_param_b();
-  }
-  else if (_sigma_choice == "creneau")
+  if (_sigma_choice == "creneau")
   {
     _b = data_file->Get_param_b();
     _c = data_file->Get_param_c();
@@ -56,19 +52,12 @@ _sigma_choice(data_file->Get_sigma_choice())
           _sigma.coeffRef(i) = 1.;
         }
       }
-      else if(_sigma_choice == "line")
-      {
-        _sigma.coeffRef(2*i)=xk;
-        _sigma.coeffRef(2*i+1)=xk1;
-      }
       else
       {
         _sigma.coeffRef(i) = 1.;
       }
     }
   }
-
-  cout << "sigma " << _sigma << endl;
 
   _matAm.resize(_Asize,_Asize);
   _matAm.setZero();
@@ -188,26 +177,12 @@ void SystemBuilder::Build_matA()
   }
 
   _matAm = mu*_matAm;
-  //_matAs = sigma*matA;
-  /*for(int i=0; i < _Asize; i++)
-  {
-    for(int j=0; j < _Asize; j++)
-    {
-      _matAs.coeffRef(i,j) = _matAs.coeffRef(i,j)*_sigma.coeffRef(i);
-    }
-  }*/
   _matA = _matAm + _matAs;
 
   Matrix<double, Dynamic, Dynamic> Matrix;
   Matrix = MatrixXd(_matA);
   //cout << Matrix << endl;
   //cout << endl << " --- " << endl << endl;
-
-  SparseMatrix<double, ColMajor> A(_matA);
-
-  cout << "Factorisation LU                 " << endl;
-  _solverMethod.analyzePattern(A);
-  _solverMethod.factorize(A);
 }
 
 void SystemBuilder::Build_sourceTerm()
@@ -287,11 +262,6 @@ void SystemBuilder::Build_sourceTerm()
 double SystemBuilder::Get_sigma0()
 {
   return _sigma.coeffRef(0);
-}
-
-SparseVector<double> SystemBuilder::Get_sigma()
-{
-  return _sigma;
 }
 
 

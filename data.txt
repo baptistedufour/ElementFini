@@ -1,16 +1,16 @@
 Nmesh
-100
+10
 
 sigma
-creneau 0 0.5 2
-# constant value, creneau a b c [f([a,b])=c, 1 sinon]
+constant 1
+# constant a, creneau a b c [f([a,b])=c, 1 sinon]
 
 source_fct
-constant 1
-# constant value, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon],  sinus [f=pi**2*sin(pi*x)]
+line -6 2
+# constant d, line d e [f(x)=dx+e], creneau d e f [f([d,e])=f, 0 sinon],  sinus [f=pi**2*sin(pi*x)]
 
 gamma0
-100
+10
 #Choix Gamma 0 pour definition du mu
 
 left_boundary_condition
@@ -18,7 +18,7 @@ dirichlet 0
 # neumann d(u_g)/dn, dirichlet u_g
 
 right_boundary_condition
-dirichlet 1
+dirichlet 0.2
 # neumann d(u_g)/dn, dirichlet u_g
 
 Pk_element
